@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
 import yaml
 
 REQUIRED_KEYS = ("name", "team", "topic", "type")
+# ROS2 메시지 타입 표기: <패키지>/msg/<메시지> (예: sensor_msgs/msg/NavSatFix)
+TYPE_RE = re.compile(r"^[a-z][a-z0-9_]*/msg/[A-Z][A-Za-z0-9]*$")
 
 
 @dataclass
@@ -33,6 +36,10 @@ def load_inputs(path: str) -> list[FusionInput]:
             raise ValueError(f"inputs[{i}] 에 {missing} 가 없습니다")
         if item["name"] in names:
             raise ValueError(f"입력 이름 중복: {item['name']}")
+        if not TYPE_RE.match(str(item["type"])):
+            raise ValueError(f"inputs[{i}].type '{item['type']}' 형식 오류 - 예: sensor_msgs/msg/NavSatFix")
+        if not str(item["topic"]).startswith("/"):
+            raise ValueError(f"inputs[{i}].topic '{item['topic']}' 은 / 로 시작하는 절대 이름이어야 합니다")
         names.add(item["name"])
         inputs.append(
             FusionInput(

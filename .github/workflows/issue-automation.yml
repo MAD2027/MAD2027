@@ -1,16 +1,30 @@
 # 이슈 자동화: 이슈 양식에서 고른 팀으로 라벨을 붙이고 프로젝트 보드에 등록한다.
+# 담당자가 지정되면 status:in-progress 를 붙여 리포트의 "진행 중" 에 집계되게 한다.
 name: 이슈 자동화
 
 on:
   issues:
-    types: [opened]
+    types: [opened, assigned]
 
 permissions:
   issues: write
 
 jobs:
+  in-progress:
+    name: 진행 중 표시
+    if: github.event.action == 'assigned' && github.event.issue.state == 'open'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = context.payload.issue;
+            if (issue.labels.some(l => l.name.startsWith('report:'))) return;
+            await github.rest.issues.addLabels({ ...context.repo, issue_number: issue.number, labels: ['status:in-progress'] });
+
   team-label:
     name: 팀 라벨
+    if: github.event.action == 'opened'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/github-script@v8
@@ -24,7 +38,7 @@ jobs:
 
   project:
     name: 프로젝트 보드 등록
-    if: vars.PROJECT_URL != ''
+    if: github.event.action == 'opened' && vars.PROJECT_URL != ''
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/add-to-project@v1.0.2

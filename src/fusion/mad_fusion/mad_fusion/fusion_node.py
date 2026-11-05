@@ -22,6 +22,8 @@ class FusionNode(Node):
         default_inputs = os.path.join(get_package_share_directory("mad_fusion"), "config", "fusion_inputs.yaml")
         inputs_file = self.declare_parameter("inputs_file", default_inputs).value
         rate_hz = self.declare_parameter("rate_hz", 20.0).value
+        if rate_hz <= 0:
+            raise ValueError(f"rate_hz 는 0 보다 커야 합니다 (현재 {rate_hz})")
 
         inputs = load_inputs(inputs_file)
         self.tracker = InputTracker(inputs)
