@@ -66,7 +66,8 @@ def test_shipped_input_types_resolvable():
             utilities.get_message(item.type)
         except (AttributeError, ModuleNotFoundError, ValueError) as e:
             pytest.fail(
-                f"{item.name}: 메시지 타입 {item.type} 를 찾을 수 없습니다 ({e}). 타입 이름 오타 또는 package.xml 의존성 확인"
+                f"{item.name}: 메시지 타입 {item.type} 를 찾을 수 없습니다 ({e}). "
+                "타입 이름 오타 또는 package.xml 의존성 확인"
             )
 
 
