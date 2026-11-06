@@ -22,6 +22,10 @@ jobs:
 
   guide:
     name: 규칙 안내
+    # actions/labeler 는 시작 시 읽은 라벨 목록으로 전체를 다시 쓴다(setLabels).
+    # 동시에 돌면 여기서 붙인 ai:* 라벨이 지워지므로 labeler 가 끝난 뒤 실행한다.
+    needs: label
+    if: always()
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v5   # base 브랜치(.github/teams.json 읽기용)
