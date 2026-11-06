@@ -7,3 +7,5 @@
 ```bash
 ./scripts/new_package.sh gps <패키지이름> python   # 또는 cpp
 ```
+
+<!-- [SIM] 카메라 브랜치에서 GPS 팀 폴더 수정 (규칙 위반 예시) -->
