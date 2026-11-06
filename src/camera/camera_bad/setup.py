@@ -22,6 +22,6 @@ setup(
         ],
     },
     entry_points={
-        "console_scripts": ["@node_name = camera_bad.@node_name:main"],
+        "console_scripts": [],
     },
 )
