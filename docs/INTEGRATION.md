@@ -73,6 +73,7 @@ ros2 launch mad_bringup system.launch.py        # (다른 터미널) 각 팀 노
 ros2 bag play bags/school_loop_... --clock --loop     # 녹화 데이터 재생
 ros2 launch mad_fusion fusion.launch.py use_sim_time:=true
 ```
+- `use_sim_time:=true` 는 `system.launch.py` 에도 줄 수 있고, 포함된 모든 팀 런치와 노드에 전달됩니다 (`ros2 bag play ... --clock` 과 함께).
 - 융합 로직은 `fusion_node.py` 의 `fuse()` 에서 시작해 별도 모듈로 키웁니다. 순수 계산은 ROS 없이 단위 테스트합니다.
 - 융합 결과 메시지를 `src/interfaces` 에 정의하면 제어 팀이 그 토픽을 받아 개발합니다.
 
@@ -80,7 +81,7 @@ ros2 launch mad_fusion fusion.launch.py use_sim_time:=true
 각 팀 기능이 준비되면 통합 런치에 넣고, 본체에서 확인한 뒤 버전을 고정합니다.
 
 1. 각 팀이 자기 패키지에 `launch/<팀>.launch.py` 를 두고, `src/bringup/mad_bringup/launch/system.launch.py` 의 `TEAM_LAUNCHES` 에 한 줄 추가하는 PR 을 올립니다. (`mad_fusion` 은 이미 들어 있음)
-2. 리더가 센서 위치 static TF 를 통합 런치에 넣습니다.
+2. 리더가 센서 장착 위치(실측)를 `src/bringup/mad_bringup/config/static_tf.yaml` 에 적습니다. 통합 런치가 항목마다 `static_transform_publisher` 를 띄웁니다 (`base_link` → `camera_link` 등).
 3. **Actions → 본체 노트북 실기 테스트** 를 main 으로 실행합니다 (전체 빌드 → 테스트 → 통합 실행).
 4. 아래 체크리스트를 확인합니다.
 5. **Actions → 버전 릴리스** 로 `v0.x.0` 을 만듭니다. 이 태그가 "이 날짜에 융합까지 확인된 버전" 입니다. 시연·대회에는 태그 버전을 씁니다.
