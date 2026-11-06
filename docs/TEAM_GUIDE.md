@@ -40,6 +40,8 @@ docs/              문서
 - 1초에 한 번 이상 `/system/status` (`mad_interfaces/NodeStatus`) 를 발행합니다. `team` 에는 팀 id 를 넣습니다. `system_monitor` 가 노드가 끊기면 경고합니다.
 - 파라미터는 코드에 하드코딩하지 말고 `config/*.yaml` 과 `declare_parameter` 로 받습니다.
 - 각 팀 패키지에는 `launch/<팀>.launch.py` 를 둡니다. 통합할 준비가 되면 `src/bringup/mad_bringup/launch/system.launch.py` 의 `TEAM_LAUNCHES` 에 한 줄을 추가하는 PR 을 올립니다.
+  - `./scripts/new_package.sh` 가 `launch/<팀>.launch.py`(use_sim_time 전달 포함)와 `config/<패키지>.yaml` 을 만들고 설치 등록(`setup.py` / `CMakeLists.txt`)까지 해 둡니다. 노드를 만들면 실행 파일로 등록하고 런치의 `node("...")` 줄만 추가하면 됩니다.
+  - 빌드하면 `install/<패키지>/share/<패키지>/launch/`, `.../config/` 로 설치되고, `ros2 launch` 는 이 설치 위치에서 파일을 찾습니다.
 
 ## 버전 관리 (모두가 같은 버전을 쓰는 법)
 

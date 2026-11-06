@@ -1,0 +1,21 @@
+# 센서 장착 위치 = base_link → 센서 프레임 static TF (AGENTS.md 10번, docs/INTEGRATION.md 4단계).
+# 리더가 차량에서 실측해 채운다. 단위: xyz [m], rpy [rad]. 비어 있으면 static TF 를 발행하지 않는다.
+# system.launch.py 가 항목마다 tf2_ros static_transform_publisher 를 하나씩 띄운다.
+static_transforms: []
+# 예시 (실측값으로 바꿔서 주석 해제):
+#  - parent: base_link
+#    child: camera_link
+#    xyz: [0.30, 0.0, 0.50]
+#    rpy: [0.0, 0.0, 0.0]
+#  - parent: base_link
+#    child: lidar_link
+#    xyz: [0.20, 0.0, 0.70]
+#    rpy: [0.0, 0.0, 0.0]
+#  - parent: base_link
+#    child: gps_link
+#    xyz: [0.0, 0.0, 0.90]
+#    rpy: [0.0, 0.0, 0.0]
+#  - parent: base_link
+#    child: imu_link
+#    xyz: [0.0, 0.0, 0.20]
+#    rpy: [0.0, 0.0, 0.0]
