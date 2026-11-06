@@ -2,6 +2,7 @@
 // 일정 시간 명령이 없으면 정지(워치독) - 실제 구동 코드로 교체해서 사용.
 
 const unsigned long COMMAND_TIMEOUT_MS = 500;
+const unsigned long SERIAL_BAUD = 115200;  // [SIM] 상위(제어 노드)와 같은 값이어야 한다
 unsigned long lastCommandMs = 0;
 int steering = 0;
 int throttle = 0;
@@ -20,7 +21,7 @@ void parseCommand(const String &line) {
   lastCommandMs = millis();
 }
 
-void setup() { Serial.begin(115200); }
+void setup() { Serial.begin(SERIAL_BAUD); }
 
 void loop() {
   if (Serial.available()) {
