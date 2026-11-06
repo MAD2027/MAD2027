@@ -55,7 +55,11 @@ def test_shipped_inputs_valid():
 
 
 def test_shipped_input_types_resolvable():
-    """메시지 타입이 실제로 존재하는지 (오타, mad_fusion package.xml 의존성 누락을 CI 에서 잡는다)."""
+    """메시지 타입이 실제로 존재하는지 (타입 오타를 CI 에서 잡는다).
+
+    공용 이미지에 이미 설치된 메시지 패키지(sensor_msgs 등)는 package.xml 에 의존성이 빠져도 통과하므로,
+    새 메시지 패키지를 쓰면 package.xml 의 exec_depend 는 리뷰에서 확인한다.
+    """
     utilities = pytest.importorskip("rosidl_runtime_py.utilities", reason="ROS2 환경(컨테이너/CI)에서만 실행")
     for item in load_inputs(str(SHIPPED)):
         try:
