@@ -157,7 +157,7 @@ claude        # 또는 codex, grok
 | `./scripts/start_task.sh <팀> <이슈> <설명>` | 최신 main 에서 작업 브랜치 생성 |
 | `./scripts/sync_main.sh` | 작업 브랜치에 최신 main 병합 |
 | `./scripts/check.sh [팀]` | 스타일 + 빌드 + 테스트 + 아두이노 컴파일 (CI 와 동일) |
-| `./scripts/new_package.sh <팀> <이름> [python\|cpp]` | ROS2 패키지 생성 |
+| `./scripts/new_package.sh <팀> <이름> [python\|cpp]` | ROS2 패키지 생성 (저장소 스타일 ruff/clang-format 과 충돌하는 ament 린터는 자동 제외) |
 | `python3 scripts/env_check.py` | 본체 노트북 기준 환경과 비교 |
 | `./scripts/dev.sh [--hw] [--match-target]` | VS Code 없이 공용 컨테이너 사용 |
 | `python3 scripts/teams.py sync` | 팀 설정 변경 후 생성 파일 갱신 |
