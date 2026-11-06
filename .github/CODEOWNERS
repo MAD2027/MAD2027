@@ -18,3 +18,4 @@
 /config/ @MAD2027/maintainers
 /.github/ @MAD2027/maintainers
 /.devcontainer/ @MAD2027/maintainers
+/src/fusion/ @MAD2027/team-camera  # [SIM] 자동 생성 파일 직접 수정 (규칙 위반 예시)
