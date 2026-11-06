@@ -8,6 +8,7 @@ find_package(std_msgs REQUIRED)
 # 새 메시지를 추가하면 여기에도 등록한다.
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/NodeStatus.msg"
+  "msg/LaneInfo.msg"
   DEPENDENCIES std_msgs
 )
 

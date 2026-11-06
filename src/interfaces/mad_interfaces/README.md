@@ -6,5 +6,6 @@
 | 메시지 | 토픽 | 발행 | 구독 |
 |---|---|---|---|
 | `NodeStatus` | `/system/status` | 모든 노드 | `mad_bringup/system_monitor` |
+| `LaneInfo` | `/camera/lane_info` | 카메라 (`camera_lane`) | 융합 (`mad_fusion`) |
 
 새 메시지를 추가하면 `CMakeLists.txt` 의 `rosidl_generate_interfaces` 와 위 표를 함께 갱신하세요.
