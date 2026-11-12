@@ -15,13 +15,13 @@
 - 끝난 항목은 아래 "완료" 로 옮기고 PR 번호를 적습니다.
 
 ## 현재 상태 (2026-11-12)
-- **조직(확인 필요, D3)**: 전체 팀장 1 + 팀장 4(그중 1명 자율주행팀 팀장 겸임) + 팀원 4 = **9명, 팀당 팀장 1 + 팀원 1**. 문서 일부(README "팀당 약 4명", ORG_SETUP "16명", TEAM_GUIDE 역할 표 "약 17명")는 팀당 4명 기준으로 쓰여 있음 → C1 에서 수정.
+- **조직(D3 결정: 8~9명)**: 전체 팀장 1 + 팀장 4(그중 1명 자율주행팀 팀장 겸임) + 팀원 3~4. **팀당 팀장 1 + 팀원 0~1** → 팀원 없이 팀장 혼자인 팀이 생길 수 있음. 문서 일부(README "팀당 약 4명", ORG_SETUP "16명", TEAM_GUIDE 역할 표 "약 17명")는 팀당 4명 기준 → C1 에서 수정.
 - **GitHub 팀 구성(실제)**: `leads`·`maintainers` = Anjabom, S1Ron1124 / `team-camera`·`team-gps`·`team-lidar`·`team-control` = Anjabom 만. 다른 팀장·팀원은 아직 미배치 (H1).
 - **승인 체계(main)**: `.github/CODEOWNERS` 기준
   - 팀 폴더(`src/camera|gps|lidar|control/`, `firmware/`) = `leads` 또는 `maintainers`
   - `src/fusion/`, `src/interfaces/` = `leads`
   - 그 밖의 공용 파일 = `maintainers`
-  - 팀원(`team-*`)은 승인 권한 없음. 누구도 자기 PR 은 승인 불가 → **팀장이 쓴 코드는 다른 팀장 또는 전체 팀장이 승인** (D1 로 변경 검토)
+  - 팀원(`team-*`)은 승인 권한 없음. 누구도 자기 PR 은 승인 불가 → **팀장이 쓴 코드는 다른 팀장 또는 전체 팀장이 승인** (D1=B 로 바꾸는 중 → C1)
   - `config/teams.yml` 의 팀별 `lead:`(팀장 아이디)는 비어 있음 (C2)
   - 보호 규칙(ORG_SETUP 5장): 승인 1, Code Owners 필수, 새 push 시 승인 무효, 대화 Resolve 필수, `CI 통과` 필수, Squash. 실제 설정은 미확인 (H2)
 - **열린 PR (권장 병합 순서)**: #43 git 훅·`finish_task.sh` → #44 AGENTS.md 작업 절차(#43 필요) → Dependabot #2~#5 (하나씩) → #27 런치 use_sim_time·static TF·패키지 템플릿 → #40 설치 스크립트(H4 검증 후)
@@ -30,9 +30,9 @@
 ## A. 결정 필요 (사용자)
 | # | 결정 | 선택지 | 막힌 작업 |
 |---|---|---|---|
-| D1 | 팀장이 쓴 코드의 승인 방식 | **A** 다른 팀장·전체 팀장 승인 (현재) / **B** 같은 팀 팀원이 승인, 다른 팀장·전체 팀장은 대리 (2명 팀에 추천) | C1 |
+| D1 | ~~팀장이 쓴 코드의 승인 방식~~ **결정: B** (2026-11-12) | 팀 폴더는 같은 팀 사람끼리 서로 승인(팀원 PR=팀장, 팀장 PR=팀원), 다른 팀장(`leads`)·전체 팀장(`maintainers`)은 대리. 팀원이 없는 팀의 팀장 PR 은 대리 승인 | C1 |
 | D2 | 팀장 4명의 GitHub 아이디, 자율주행팀 팀장이 누구인지 | - | C2, H1 |
-| D3 | 조직 인원 9명(팀당 2명)이 맞는지 | - | C1, C3 |
+| D3 | ~~조직 인원~~ **결정: 8~9명** (2026-11-12) | 팀원 수가 정해지면 TEAM_GUIDE 역할 표에 반영 | C1, C3 |
 
 ## B. 사람(관리자)이 할 일
 | # | 할 일 | 비고 |
@@ -48,7 +48,7 @@
 ## C. AI(Claude 등) 가 할 일
 | # | 할 일 | 산출물 | 선행 |
 |---|---|---|---|
-| C1 | 2명 팀 기준 승인·역할 정리: D1 반영(B 면 `teams.yml` `code_owners` 에 그 팀 자신을 넣을 수 있게 `teams.py` 수정 + sync), TEAM_GUIDE 역할 표 9명 기준, "팀원 1차 리뷰" 규칙을 2명 팀에 맞게(팀원 PR=팀장 리뷰, 팀장 PR=팀원 리뷰), 융합 주 담당=자율주행팀 팀장, README·ORG_SETUP·CONTRIBUTING 인원 숫자 | PR 1개 | D1, D3 |
+| C1 | **2명 이하 팀 기준 승인·역할 정리 (D1=B)**: `scripts/teams.py` 의 `code_owners` 에 `team`(= 그 팀 `github_team`) 을 쓸 수 있게 하고 4팀을 `code_owners: [team, leads, maintainers]` 로 → sync → CODEOWNERS 예: `/src/camera/ @MAD2027/team-camera @MAD2027/leads @MAD2027/maintainers`. 문서: CONTRIBUTING 6장 "누가 승인하나"(팀원 PR=팀장, 팀장 PR=팀원, 팀원 없는 팀·부재 시 다른 팀장/전체 팀장), TEAM_GUIDE 역할 표 8~9명·"1차 리뷰" 규칙 수정, 융합 주 담당=자율주행팀 팀장, ORG_SETUP 팀 표·Ruleset 설명, README·ORG_SETUP 인원 숫자 | PR 1개 | (결정 완료) |
 | C2 | 4팀과 융합(`fusion`)의 `lead:` 에 팀장 아이디 → `python3 scripts/teams.py sync` → CODEOWNERS 갱신 | 작은 PR | D2, H1 |
 | C3 | 교육 자료 웹 페이지 갱신: "MAD 개발 교본"(https://claude.ai/artifact/UyaDFHe2VnQzd9SEUjRjZi), "MAD 팀 구조 점검"(https://claude.ai/artifact/U3URe3BEjjpQeaWvmCaGky) 을 9명 기준·확정 승인 체계로, 병합된 PR 의 "리뷰 중" 표시 정리 | 페이지 갱신 (같은 주소, 소유자 계정에서) | C1 병합 |
 | C4 | PR #27 용 이슈를 만들어 본문에 `Closes #` 연결 (규칙 봇 경고 해소) | 이슈 1개 | 없음 |
@@ -56,7 +56,7 @@
 | C6 | (선택) Copilot·Gemini 용 연결 파일을 `teams.py sync` 가 생성(`AGENTS.md` 를 따르라는 짧은 파일), AI 규칙 숙지 점검 시나리오 문서 | PR 1개 | 다른 AI 도구 사용자가 생기면 |
 
 ## 권장 순서
-1. D1~D3 결정
+1. ~~D1, D3 결정~~ (완료). D2(팀장 아이디)는 대기
 2. C4 → C1 (동시에 H1)
 3. H5: #43 → #44 병합, H3, H7
 4. C2 → C3
