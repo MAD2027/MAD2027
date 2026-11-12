@@ -22,10 +22,11 @@ teams:
     github_team: team-camera    # Organization 안의 GitHub 팀 slug (팀원 push 권한, @멘션)
     # 팀 폴더 PR 승인권자 (.github/CODEOWNERS). 아래 둘 중 한 명이 승인하면 병합 가능:
     #   lead        = 팀장 GitHub 아이디(@ 없이). 리뷰 요청이 팀장에게 직접 간다. 비워 두면 code_owners 만.
-    #   code_owners = 승인할 수 있는 팀 (leads / maintainers). 팀장 본인 PR·팀장 부재 시 다른 리더가 승인.
+    #   code_owners = 승인할 수 있는 팀 (leads / maintainers). 팀장 본인 PR·팀장 부재 시 다른 리더가,
+    #                 리더가 모두 없으면 전체 팀장(maintainers)이 예비로 승인.
     #   (둘 다 생략하면 github_team 의 팀원 누구나 승인)
     lead: ""                    # TODO: 카메라 팀장 GitHub 아이디
-    code_owners: [leads]
+    code_owners: [leads, maintainers]
     color: "1d76db"
     paths:
       - src/camera/
@@ -35,7 +36,7 @@ teams:
     description: GPS/IMU 기반 측위 및 경로
     github_team: team-gps
     lead: ""                    # TODO: GPS 팀장 GitHub 아이디
-    code_owners: [leads]
+    code_owners: [leads, maintainers]
     color: "0e8a16"
     paths:
       - src/gps/
@@ -45,7 +46,7 @@ teams:
     description: 라이다 기반 인지 (장애물/거리)
     github_team: team-lidar
     lead: ""                    # TODO: 라이다 팀장 GitHub 아이디
-    code_owners: [leads]
+    code_owners: [leads, maintainers]
     color: "5319e7"
     paths:
       - src/lidar/
@@ -55,7 +56,7 @@ teams:
     description: 판단/제어 및 아두이노 펌웨어
     github_team: team-control
     lead: ""                    # TODO: 제어 팀장 GitHub 아이디
-    code_owners: [leads]
+    code_owners: [leads, maintainers]
     color: "d93f0b"
     paths:
       - src/control/

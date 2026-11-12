@@ -126,7 +126,7 @@ git push
 2. `config/teams.yml` 에서 그 팀의 `lead:` 를 새 팀장 GitHub 아이디(@ 없이)로 바꿉니다.
 3. `python3 scripts/teams.py sync` → `.github/CODEOWNERS` 가 갱신됩니다 → `chore/<이슈>-change-lead` 브랜치로 PR.
 
-`lead:` 를 비워 두면 그 팀 폴더는 `leads` 중 누구나 승인할 수 있고(팀장에게 직접 리뷰 요청은 가지 않음), `lead:` 와 `code_owners:` 를 모두 지우면 예전처럼 팀원 누구나 승인할 수 있습니다.
+`lead:` 를 비워 두면 그 팀 폴더는 `leads`·`maintainers` 중 누구나 승인할 수 있고(팀장에게 직접 리뷰 요청은 가지 않음), `lead:` 와 `code_owners:` 를 모두 지우면 예전처럼 팀원 누구나 승인할 수 있습니다.
 
 `scripts/teams.py sync` 가 다시 만드는 파일:
 `.github/CODEOWNERS`, `.github/labeler.yml`, `.github/labels.json`, `.github/teams.json`, `.github/release.yml`, 이슈 양식의 팀 선택지
