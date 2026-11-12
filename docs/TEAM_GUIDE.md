@@ -18,7 +18,7 @@ docs/              문서
 ```
 
 - 담당자는 `.github/CODEOWNERS` 로 정해집니다. 이 파일은 `config/teams.yml` 에서 자동 생성됩니다.
-- **다른 팀 폴더를 고쳐야 하면** 그 팀에 이슈를 남기거나, 직접 PR 을 올리고 그 팀의 리뷰를 받습니다. 코드 오너 승인이 필수라서, 그 팀이 모르게 바뀌는 일은 없습니다.
+- **다른 팀 폴더를 고쳐야 하면** 그 팀에 이슈를 남기거나, 직접 PR 을 올리고 그 팀 팀장의 승인을 받습니다. 코드 오너 승인이 필수라서, 그 팀이 모르게 바뀌는 일은 없습니다.
 
 ## 팀 간 인터페이스 (가장 중요)
 
@@ -120,6 +120,13 @@ git push
    ```
 4. **PR 을 병합하기 전에** GitHub **Issues → Labels** 에서 예전 라벨 `team:lidar` 의 이름을 `team:perception` 으로 바꿉니다. 이렇게 하면 기존 이슈와 PR 에도 새 이름이 그대로 반영됩니다.
 5. `chore/<이슈>-rename-team` 브랜치로 PR 을 올리고 병합합니다. 병합하면 라벨 색상과 설명이 자동으로 갱신됩니다.
+
+### 팀장이 바뀌었을 때
+1. GitHub Organization → Teams → `leads` 에서 이전 팀장을 빼고 새 팀장을 넣습니다 (필요하면 `maintainers` 도).
+2. `config/teams.yml` 에서 그 팀의 `lead:` 를 새 팀장 GitHub 아이디(@ 없이)로 바꿉니다.
+3. `python3 scripts/teams.py sync` → `.github/CODEOWNERS` 가 갱신됩니다 → `chore/<이슈>-change-lead` 브랜치로 PR.
+
+`lead:` 를 비워 두면 그 팀 폴더는 `leads` 중 누구나 승인할 수 있고(팀장에게 직접 리뷰 요청은 가지 않음), `lead:` 와 `code_owners:` 를 모두 지우면 예전처럼 팀원 누구나 승인할 수 있습니다.
 
 `scripts/teams.py sync` 가 다시 만드는 파일:
 `.github/CODEOWNERS`, `.github/labeler.yml`, `.github/labels.json`, `.github/teams.json`, `.github/release.yml`, 이슈 양식의 팀 선택지

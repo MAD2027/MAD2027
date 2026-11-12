@@ -5,11 +5,11 @@
 * @MAD2027/maintainers
 
 # 팀별 담당 영역
-/src/camera/ @MAD2027/team-camera
-/src/gps/ @MAD2027/team-gps
-/src/lidar/ @MAD2027/team-lidar
-/src/control/ @MAD2027/team-control
-/firmware/ @MAD2027/team-control
+/src/camera/ @MAD2027/leads
+/src/gps/ @MAD2027/leads
+/src/lidar/ @MAD2027/leads
+/src/control/ @MAD2027/leads
+/firmware/ @MAD2027/leads
 /src/fusion/ @MAD2027/leads
 
 # 공용 영역

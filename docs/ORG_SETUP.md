@@ -44,11 +44,13 @@
 | 팀 slug | 구성원 | 역할 |
 |---|---|---|
 | `maintainers` | 프로젝트 관리자 + 각 팀 리더 | 공용 영역(통합 런치, CI, 설정) 승인 |
-| `leads` | 각 팀 리더 4명 | 인터페이스(메시지) 변경 승인 |
-| `team-camera` | 카메라 팀원 | `src/camera/` 승인 |
-| `team-gps` | GPS 팀원 | `src/gps/` 승인 |
-| `team-lidar` | 라이다 팀원 | `src/lidar/` 승인 |
-| `team-control` | 제어 팀원 | `src/control/`, `firmware/` 승인 |
+| `leads` | 각 팀 리더 4명 | 팀 폴더 승인(자기 팀장 원칙), 인터페이스(메시지)·융합 승인 |
+| `team-camera` | 카메라 팀원 | `src/camera/` push 권한, `@멘션` |
+| `team-gps` | GPS 팀원 | `src/gps/` push 권한, `@멘션` |
+| `team-lidar` | 라이다 팀원 | `src/lidar/` push 권한, `@멘션` |
+| `team-control` | 제어 팀원 | `src/control/`, `firmware/` push 권한, `@멘션` |
+
+팀 폴더 승인은 **팀장**이 합니다. 팀장 GitHub 아이디를 `config/teams.yml` 의 각 팀 `lead:` 에 적고 `python3 scripts/teams.py sync` → PR 하면 `.github/CODEOWNERS` 가 `/src/camera/ @팀장아이디 @MAD2027/leads` 처럼 갱신됩니다. 팀장은 반드시 `leads` 팀에 넣습니다 (Write 권한이 있어야 CODEOWNERS 가 인정).
 
 각 팀 페이지 → **Repositories → Add repository** → 저장소 선택 → 권한 **Write**
 (`maintainers` 팀은 **Maintain**)
@@ -83,7 +85,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
   - ✅ **Require a pull request before merging**
     - Required approvals: **1**
     - ✅ Dismiss stale pull request approvals when new commits are pushed
-    - ✅ **Require review from Code Owners** ← 팀 폴더는 그 팀이, 인터페이스는 리더가 승인
+    - ✅ **Require review from Code Owners** ← 팀 폴더는 그 팀 팀장(또는 다른 리더)이, 인터페이스·융합은 리더가, 공용 파일은 maintainers 가 승인
     - ✅ Require conversation resolution before merging
     - Allowed merge methods: **Squash** (PR 하나 = main 커밋 하나 → 기록이 깔끔)
   - ✅ **Require status checks to pass**
