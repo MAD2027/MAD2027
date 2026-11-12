@@ -9,12 +9,39 @@ PC 의 OS 는 컨테이너를 띄우는 데만 쓰이고, 코드가 실행되는
 | [우분투 노트북](#우분투-노트북) | Docker + VS Code | 처음 20~30분 |
 | [본체 노트북](#본체-노트북) | Docker + `scripts/dev.sh` (+ 실기 테스트 러너) | 처음 30분 |
 
+> **우분투 · WSL · 본체는 [자동 설치](#자동-설치-우분투--wsl--본체-공통-권장) 스크립트 하나로 대부분 끝납니다.** 아래 수동 절차는 스크립트가 막혔을 때나 무엇을 하는지 알고 싶을 때 봅니다.
+
 > 처음에는 공용 이미지(약 3~4GB)를 내려받는 데 시간이 걸립니다. 학교 와이파이보다 빠른 네트워크에서 받는 것을 권장합니다.
 
 > 코딩·git·ROS2 가 처음이라면 [BEGINNER.md](BEGINNER.md) 에서 용어와 "첫 노드 실행" 을 먼저 보세요.
 > 아래 코드블록 첫 줄의 `# [호스트]` 는 내 PC 의 우분투 터미널, `# [컨테이너]` 는 공용 개발 컨테이너 안 터미널, `# [PowerShell]` 은 윈도우 PowerShell 을 뜻합니다.
 
 ---
+
+## 자동 설치 (우분투 · WSL · 본체 공통, 권장)
+
+아래 "GitHub 로그인" 부터 "저장소 받기" 까지의 단계를 스크립트 하나가 대신합니다. 여러 번 실행해도 안전합니다 (이미 된 단계는 건너뜀).
+윈도우는 먼저 [윈도우 노트북](#윈도우-노트북) 1~2단계(WSL 설치, `.wslconfig`)와 4단계(VS Code)를 한 뒤 **WSL 우분투 터미널**에서 실행합니다.
+
+```bash
+# [호스트] 저장소를 아직 안 받았을 때 (한 줄)
+bash <(curl -fsSL https://raw.githubusercontent.com/MAD2027/MAD2027/main/scripts/installer/setup-host.sh)
+# [호스트] 저장소가 이미 있을 때
+~/mad2027/scripts/installer/setup-host.sh
+```
+
+| 스크립트가 하는 일 | 내가 할 일 |
+|---|---|
+| git·curl·Docker·GitHub CLI(`gh`) 설치, 우분투 노트북이면 VS Code + Dev Containers 확장 | sudo 비밀번호 입력 |
+| git 이름/이메일, ROS_DOMAIN_ID(팀 범위 검사) 를 `~/.bashrc` 에 설정 | 이름, 이메일, 팀, 배정받은 번호 입력 |
+| SSH 키 생성 → GitHub 에 등록, 22번 포트가 막혔으면 443 우회 | 브라우저가 열리면 표시된 코드 입력 후 **Authorize** 클릭 |
+| Organization push 권한 확인 | 권한이 없다고 나오면 초대 수락 / 관리자에게 팀 추가 요청 |
+| `~/mad2027` 에 clone (https 로 받아 둔 저장소는 SSH 로 전환) | - |
+| 공용 이미지 받기, 컨테이너에서 `env_check.py` | - |
+
+- 옵션: `--team gps --domain-id 23` (묻지 않고 지정), `--dir <경로>`, `--no-vscode`, `--dry-run` (할 일만 출력). `--help` 로 전체 보기.
+- 끝나면 새 터미널을 열고(ROS_DOMAIN_ID 적용) `code ~/mad2027` → **Reopen in Container**. 처음 Docker 를 설치했다면 로그아웃 후 다시 로그인합니다 (WSL 은 PowerShell 에서 `wsl --shutdown`).
+- 스크립트가 중간에 멈추면 출력된 메시지를 보고 고친 뒤 **같은 명령을 다시 실행**합니다. 아래 수동 절차와 결과가 같으므로, 막히는 단계만 수동으로 해도 됩니다.
 
 ## GitHub 로그인 (SSH 키, PC 마다 처음 한 번)
 
