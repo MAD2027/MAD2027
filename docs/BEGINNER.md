@@ -55,7 +55,7 @@ git push -u origin HEAD                         # GitHub 에 올리기 (처음 p
 ```
 `git add -p` 의 질문에는 `y`(담기), `n`(안 담기), `s`(더 잘게 나누기), `q`(그만) 로 답합니다. 새로 만든 파일은 `-p` 로 안 보이므로 `git add <파일>` 로 담습니다.
 
-push 후에는 GitHub 저장소 페이지 위쪽의 노란 **Compare & pull request** 버튼(또는 터미널에 출력된 링크)을 눌러 PR 을 만듭니다. 양식(템플릿)이 자동으로 채워지므로 `Closes #12`, 테스트 방법, AI 도구 사용을 적습니다. 자세한 규칙은 [CONTRIBUTING.md](CONTRIBUTING.md).
+push 후에는 GitHub 저장소 페이지 위쪽의 노란 **Compare & pull request** 버튼(또는 터미널에 출력된 링크)을 눌러 PR 을 만듭니다. 양식(템플릿)이 자동으로 채워지므로 `Closes #12`, 테스트 방법, AI 도구 사용을 적습니다. 화면 따라하기는 [CONTRIBUTING.md 4-1](CONTRIBUTING.md#4-1-웹에서-pr-만들기-화면-따라하기), CI 실패·리뷰 수정 요청 대응은 [5장](CONTRIBUTING.md#5-리뷰와-ci-결과에-대응하기-pr-을-올린-사람).
 
 > `git push` 에서 막히면 [DEV_ENV.md - GitHub 로그인](DEV_ENV.md#github-로그인-ssh-키-pc-마다-처음-한-번) 을 확인합니다. 충돌이 나면 [TEAM_GUIDE.md - 충돌 해결](TEAM_GUIDE.md#충돌-해결).
 
