@@ -58,6 +58,7 @@ STATIC_LABELS = [
 ]
 
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+GH_USER_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$")
 
 
 def load_config() -> dict:
@@ -73,6 +74,14 @@ def load_config() -> dict:
         team.setdefault("color", "ededed")
         team.setdefault("description", team["name"])
         team["paths"] = [p.rstrip("/") + "/" for p in team.get("paths", [])]
+        lead = (team.get("lead") or "").strip().lstrip("@")
+        if lead and not GH_USER_RE.match(lead):
+            sys.exit(f"팀 '{tid}' 의 lead '{lead}' 는 GitHub 아이디 형식이 아닙니다")
+        team["lead"] = lead
+        team["code_owners"] = list(team.get("code_owners") or [])
+        for owner in team["code_owners"]:
+            if f"{owner}_team" not in cfg:
+                sys.exit(f"팀 '{tid}' 의 code_owners '{owner}' 를 찾을 수 없습니다 (가능: leads, maintainers)")
     for area in cfg.get("shared", []):
         area["path"] = area["path"].rstrip("/") + "/"
     return cfg
@@ -80,6 +89,14 @@ def load_config() -> dict:
 
 def handle(org: str, team_slug: str) -> str:
     return f"@{org}/{team_slug}"
+
+
+def team_code_owners(cfg: dict, team: dict) -> list[str]:
+    """팀 폴더 승인권자: 팀장 개인 + code_owners 팀. 둘 다 없으면 팀 전체(github_team)."""
+    org = cfg["org"]
+    owners = [f"@{team['lead']}"] if team["lead"] else []
+    owners += [handle(org, cfg[f"{o}_team"]) for o in team["code_owners"]]
+    return owners or [handle(org, team["github_team"])]
 
 
 # ── 생성기 ────────────────────────────────────────────────────
@@ -93,7 +110,7 @@ def gen_codeowners(cfg: dict) -> str:
     lines.append("# 팀별 담당 영역")
     for team in cfg["teams"]:
         for path in team["paths"]:
-            lines.append(f"/{path} {handle(org, team['github_team'])}")
+            lines.append(f"/{path} {' '.join(team_code_owners(cfg, team))}")
     lines.append("")
     lines.append("# 공용 영역")
     for area in cfg.get("shared", []):

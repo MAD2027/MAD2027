@@ -7,7 +7,7 @@
 ```
  ┌──────────── 개발 (어느 PC 든 같은 환경) ────────────┐        ┌──────── GitHub (Organization) ────────┐
  │ 윈도우(WSL2) / 우분투 / 본체 노트북                 │  push  │ PR ─▶ CI(변경 팀만 빌드·테스트)        │
- │   └─ 공용 개발 컨테이너 (Ubuntu22.04+Humble, 고정)  │ ─────▶ │    ─▶ 코드 오너(해당 팀) 리뷰          │
+ │   └─ 공용 개발 컨테이너 (Ubuntu22.04+Humble, 고정)  │ ─────▶ │    ─▶ 팀원 리뷰 → 팀장 승인            │
  │       colcon build / test / ros2 launch            │        │    ─▶ main 병합 (Squash)               │
  └────────────────────────────────────────────────────┘        │ 이슈 + Projects 보드 = 누가 무엇을    │
                                                                 │ 야간 전체 빌드 / 오래된 PR 경보        │
@@ -46,8 +46,10 @@
 
 > AI 코딩 도구(Claude Code, Codex, Grok)를 쓴다면 3단계 후 [AI_TOOLS.md](AI_TOOLS.md) 를 보고 **컨테이너 안에서** 로그인합니다.
 
+> git·ROS2 가 처음이면 먼저 [BEGINNER.md](BEGINNER.md) 를 읽습니다 (30분).
+
 1. GitHub 계정을 만들고, Organization 초대 메일을 수락합니다.
-2. 자기 OS 에 맞게 설치합니다: [윈도우](DEV_ENV.md#윈도우-노트북) / [우분투](DEV_ENV.md#우분투-노트북)
+2. 자기 OS 에 맞게 설치하고, [GitHub 로그인(SSH 키)](DEV_ENV.md#github-로그인-ssh-키-pc-마다-처음-한-번) 을 합니다: [윈도우](DEV_ENV.md#윈도우-노트북) / [우분투](DEV_ENV.md#우분투-노트북)
    - 핵심: Docker 와 VS Code 를 설치하고, 저장소를 clone 한 뒤 **Reopen in Container** 를 누릅니다.
 3. 컨테이너 터미널에서 확인합니다.
    ```bash
@@ -82,13 +84,13 @@ git push -u origin HEAD          # → 출력된 링크로 Draft PR 생성, 본�
 ./scripts/check.sh camera        # CI 와 같은 검사
 git push                         # PR → Ready for review
 ```
-- 카메라 팀원이 리뷰·승인하고 `CI 통과` 가 뜨면 **Squash and merge** 합니다. 이슈 #12 가 자동으로 닫히고 보드에서 Done 으로 이동합니다.
+- 카메라 팀원이 먼저 리뷰(의견)하고, **카메라 팀장이 승인**한 뒤 `CI 통과` 가 뜨면 **Squash and merge** 합니다. 이슈 #12 가 자동으로 닫히고 보드에서 Done 으로 이동합니다.
 - 성능이 중요한 변경이면 병합 전에 **Actions → 본체 노트북 실기 테스트** 를 내 브랜치로 실행해 봅니다.
 
 ## 4. 팀 간 협업 예시: 카메라 → 제어로 새 메시지 전달
 
 1. 카메라 팀이 `🔌 인터페이스 변경 요청` 이슈를 만듭니다: `LaneInfo.msg` 추가 (offset, curvature).
-2. 제어 팀이 이슈에서 필드를 확인하고 👍 를 남깁니다.
+2. 영향 받는 팀(카메라·제어) 팀장이 이슈에서 필드를 확인하고 모두 👍 를 남깁니다.
 3. `shared/15-lane-info-msg` 브랜치에서 `src/interfaces/mad_interfaces/msg/LaneInfo.msg` 와 `CMakeLists.txt`, README 표만 바꾼 PR 을 올립니다. 모든 팀이 자동으로 멘션되고, `leads` 가 승인하면 병합합니다.
 4. 이후 카메라 팀(발행)과 제어 팀(구독)이 각자 자기 폴더에서 독립적으로 PR 을 올립니다. 메시지가 먼저 main 에 들어가 있으므로 서로 기다릴 필요가 없습니다.
 

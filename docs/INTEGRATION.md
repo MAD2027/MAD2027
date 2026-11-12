@@ -61,17 +61,26 @@ inputs:
 ### 2단계. 데이터 녹화 (본체 노트북)
 센서를 단 본체에서 모든 팀 출력을 **동시에** 녹화합니다. 융합 개발과 테스트의 기준 데이터가 됩니다.
 ```bash
+# [호스트] 터미널 1 → 컨테이너에 들어가서 각 팀 노드 실행
 ./scripts/dev.sh --hw
-ros2 launch mad_bringup system.launch.py        # (다른 터미널) 각 팀 노드 실행
+ros2 launch mad_bringup system.launch.py
+```
+```bash
+# [호스트] 터미널 2 → 같은 컨테이너에 들어가서 녹화 (Ctrl+C 로 종료)
+./scripts/dev.sh
 ./scripts/record_all.sh school_loop                 # fusion_inputs.yaml 의 토픽 + /tf 녹화
 ```
 녹화 파일(`bags/`)은 git 에 올리지 않고 팀 공유 드라이브에 올립니다.
 
 ### 3단계. 융합 개발 (리더 공동, 어느 PC 에서나)
 ```bash
+# [컨테이너] 터미널 1
 ./scripts/start_task.sh fusion <이슈번호> lane-obstacle-merge
-ros2 bag play bags/school_loop_... --clock --loop     # 녹화 데이터 재생
-ros2 launch mad_fusion fusion.launch.py use_sim_time:=true
+ros2 bag play bags/school_loop_... --clock --loop     # 녹화 데이터 재생 (--clock: bag 시각을 /clock 으로 발행)
+```
+```bash
+# [컨테이너] 터미널 2
+ros2 launch mad_fusion fusion.launch.py use_sim_time:=true   # /clock 시각 사용
 ```
 - `use_sim_time:=true` 는 `system.launch.py` 에도 줄 수 있고, 포함된 모든 팀 런치와 노드에 전달됩니다 (`ros2 bag play ... --clock` 과 함께).
 - 융합 로직은 `fusion_node.py` 의 `fuse()` 에서 시작해 별도 모듈로 키웁니다. 순수 계산은 ROS 없이 단위 테스트합니다.

@@ -11,6 +11,50 @@ PC 의 OS 는 컨테이너를 띄우는 데만 쓰이고, 코드가 실행되는
 
 > 처음에는 공용 이미지(약 3~4GB)를 내려받는 데 시간이 걸립니다. 학교 와이파이보다 빠른 네트워크에서 받는 것을 권장합니다.
 
+> 코딩·git·ROS2 가 처음이라면 [BEGINNER.md](BEGINNER.md) 에서 용어와 "첫 노드 실행" 을 먼저 보세요.
+> 아래 코드블록 첫 줄의 `# [호스트]` 는 내 PC 의 우분투 터미널, `# [컨테이너]` 는 공용 개발 컨테이너 안 터미널, `# [PowerShell]` 은 윈도우 PowerShell 을 뜻합니다.
+
+---
+
+## GitHub 로그인 (SSH 키, PC 마다 처음 한 번)
+
+GitHub 은 `git push` 할 때 **비밀번호를 받지 않습니다**. 이 저장소는 모든 PC 에서 **SSH 키** 로 로그인하는 방법으로 통일합니다.
+(SSH 키 = 내 PC 에만 있는 "열쇠 파일". 짝이 되는 "자물쇠"(공개 키)를 GitHub 계정에 등록해 두면 비밀번호 없이 push 할 수 있습니다.)
+
+**1) 이름/이메일 설정과 키 만들기** (윈도우는 WSL 의 우분투 터미널에서)
+```bash
+# [호스트]
+git config --global user.name "홍길동"                     # 커밋에 남을 이름
+git config --global user.email "github-가입-이메일"
+ssh-keygen -t ed25519 -C "github-가입-이메일"              # 질문에는 모두 Enter (기본 위치, 암호 없음)
+cat ~/.ssh/id_ed25519.pub                                   # 출력된 한 줄(ssh-ed25519 ...)을 복사
+```
+> `id_ed25519` (`.pub` 없는 파일)는 비밀 열쇠입니다. 절대 다른 사람에게 보내거나 GitHub 에 붙여 넣지 않습니다.
+
+**2) GitHub 에 공개 키 등록**: GitHub 오른쪽 위 프로필 사진 → **Settings → SSH and GPG keys → New SSH key** → Title 에 PC 이름(예: `내 노트북`), Key 에 복사한 한 줄을 붙여 넣고 **Add SSH key**.
+
+**3) 확인**
+```bash
+# [호스트]
+ssh -T git@github.com        # 처음엔 "Are you sure ...?" 에 yes 입력
+# → "Hi <아이디>! You've successfully authenticated ..." 가 나오면 성공
+```
+- 학교/회사 네트워크가 22번 포트를 막아 `Connection timed out` 이 나면 `~/.ssh/config` 에 아래를 넣고 다시 확인합니다.
+  ```
+  Host github.com
+    HostName ssh.github.com
+    Port 443
+  ```
+- **이미 저장소를 받아 둔 경우**: 예전에 https 주소로 clone 했다면 push 할 때 Username/Password 를 묻습니다. 저장소 폴더에서 주소를 SSH 로 바꿉니다 (한 번만, 코드는 그대로).
+  ```bash
+  # [호스트] (저장소 폴더, 예: cd ~/mad2027)
+  git remote -v                                                   # https://github.com/... 이면 아래 실행
+  git remote set-url origin git@github.com:MAD2027/MAD2027.git
+  git remote -v                                                   # git@github.com:MAD2027/MAD2027.git 확인
+  git fetch origin                                                # 에러 없이 끝나면 연결 성공
+  ```
+- 이 설정은 컨테이너에도 그대로 전달됩니다. VS Code 컨테이너는 이름/이메일을 자동으로 복사하고, `./scripts/dev.sh` 는 호스트의 `~/.gitconfig`, `~/.ssh` 를 읽기 전용으로 연결합니다. 그래서 **git 설정은 항상 호스트에서** 바꿉니다 (컨테이너 안의 `git config --global` 은 실패합니다).
+
 ---
 
 ## 윈도우 노트북
@@ -48,15 +92,15 @@ sudo usermod -aG docker $USER
 - 확장 프로그램 **WSL**(ms-vscode-remote.remote-wsl), **Dev Containers**(ms-vscode-remote.remote-containers) 를 설치합니다.
 
 ### 5. 저장소 받기 (⚠️ 반드시 우분투 터미널에서, 리눅스 홈 폴더에)
+먼저 [GitHub 로그인 (SSH 키)](#github-로그인-ssh-키-pc-마다-처음-한-번) 을 끝냅니다.
 ```bash
+# [호스트] (WSL 우분투 터미널)
 sudo apt update && sudo apt install -y git
-git config --global user.name "홍길동"
-git config --global user.email "github-가입-이메일"
 git config --global core.autocrlf input          # 윈도우 줄바꿈(CRLF) 섞임 방지
 
 cd ~
-git clone https://github.com/<org>/<repo>.git
-cd <repo>
+git clone git@github.com:MAD2027/MAD2027.git ~/mad2027
+cd ~/mad2027
 echo 'export ROS_DOMAIN_ID=12' >> ~/.bashrc && source ~/.bashrc   # 본인 번호 (TEAM_GUIDE.md)
 code .
 ```
@@ -69,6 +113,7 @@ VS Code 우측 하단 알림에서 **Reopen in Container** 를 누르거나, `F1
 
 ### 7. 동작 확인 (컨테이너 터미널)
 ```bash
+# [컨테이너]
 colcon build --symlink-install
 source install/setup.bash
 ros2 launch mad_bringup system.launch.py      # Ctrl+C 로 종료
@@ -90,6 +135,7 @@ usbipd attach --wsl --busid 2-3      # 꽂을 때마다
 
 Ubuntu 20.04/22.04/24.04 어느 버전이든 됩니다. 컨테이너 안은 항상 22.04 + Humble 입니다.
 ```bash
+# [호스트]
 # 1. Docker
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER          # 로그아웃 후 다시 로그인
@@ -99,10 +145,10 @@ sudo apt install -y git
 sudo snap install code --classic
 code --install-extension ms-vscode-remote.remote-containers
 
-# 3. 저장소
-git config --global user.name "홍길동"
-git config --global user.email "github-가입-이메일"
-git clone https://github.com/<org>/<repo>.git && cd <repo>
+# 3. GitHub 로그인: 위의 "GitHub 로그인 (SSH 키)" 1~3) 을 먼저 진행
+
+# 4. 저장소
+git clone git@github.com:MAD2027/MAD2027.git ~/mad2027 && cd ~/mad2027
 echo 'export ROS_DOMAIN_ID=12' >> ~/.bashrc && source ~/.bashrc
 code .                                  # → Reopen in Container
 ```
@@ -111,10 +157,13 @@ code .                                  # → Reopen in Container
 
 ### VS Code 없이 터미널만 쓰기
 ```bash
+# [호스트] (저장소 폴더, 예: cd ~/mad2027)
 ./scripts/dev.sh                  # 공용 컨테이너 셸 (다른 터미널에서 다시 실행하면 같은 컨테이너로 들어감)
 ./scripts/dev.sh --hw             # USB 센서/아두이노 연결
 ./scripts/dev.sh --pull           # 공용 이미지 업데이트
 ```
+- 프롬프트가 `ubuntu@...:/ws$` 로 바뀌면 컨테이너 안입니다. `exit` 로 나옵니다.
+- `dev.sh` 는 호스트의 git 설정과 SSH 키를 연결하고, 처음 들어올 때 커밋 전 스타일 검사(pre-commit 훅)를 자동으로 설치합니다. 그래서 컨테이너 안에서 바로 `git commit` / `git push` 할 수 있습니다.
 
 ---
 
@@ -122,9 +171,10 @@ code .                                  # → Reopen in Container
 
 본체는 **차량에서 실제로 돌아가는 PC** 이자 기준 환경입니다. 본체도 같은 공용 컨테이너 안에서 실행합니다.
 ```bash
+# [호스트]
 # 1. Docker, git 설치 (우분투 노트북과 동일)
-# 2. 저장소 받기
-git clone https://github.com/<org>/<repo>.git ~/mad2027 && cd ~/mad2027
+# 2. GitHub 로그인(위 "GitHub 로그인 (SSH 키)") 후 저장소 받기
+git clone git@github.com:MAD2027/MAD2027.git ~/mad2027 && cd ~/mad2027
 
 # 3. 기준 환경 기록 (최초 1회, 그리고 본체 구성이 바뀔 때마다) → PR
 ./scripts/dev.sh -- python3 scripts/env_check.py --capture
@@ -178,6 +228,11 @@ claude        # 또는 codex, grok
 | `env_check` 에서 ❌ | 컨테이너 밖(호스트)에서 실행했거나 이미지가 오래된 것입니다. 컨테이너 안에서 실행하고 Rebuild 합니다 |
 | rviz2 창이 안 뜸 | 우분투: 호스트에서 `xhost +local:` 실행. 윈도우: `wsl --update` 로 WSLg 최신화 |
 | `Package 'xxx' not found` | `source install/setup.bash`. 새 의존성이면 `rosdep install --from-paths src --ignore-src -y` |
+| `git push` 에서 `Permission denied (publickey)` | SSH 키가 GitHub 에 등록되지 않았거나 다른 키입니다. 호스트에서 `ssh -T git@github.com` 으로 확인합니다. VS Code 컨테이너에서만 실패하면 호스트에서 `ssh-add ~/.ssh/id_ed25519` 후 컨테이너를 다시 엽니다 |
+| `git push` 에서 `ERROR: Permission to MAD2027/MAD2027.git denied to <내 아이디>` | 로그인은 됐지만 **저장소 쓰기 권한이 없는** 경우입니다. ① GitHub 알림/메일의 **Organization 초대를 수락**했는지 확인 (https://github.com/MAD2027 에서 확인) ② 관리자에게 내 팀(`team-camera` 등)에 추가해 달라고 요청합니다 (팀에 들어가야 Write 권한이 생김, [ORG_SETUP.md 3단계](ORG_SETUP.md#3-팀원-초대와-팀-만들기)). 권한이 생기기 전에 커밋한 내용은 그대로 두었다가 다시 `git push` 하면 됩니다 |
+| `ERROR: Repository not found` (clone/push) | 주소 오타이거나, 비공개 저장소인데 아직 초대를 수락하지 않은 경우입니다. 주소(`git remote -v`)와 초대 수락을 확인합니다 |
+| `git push` 가 Username/Password 를 물음 | 저장소를 https 주소로 받은 경우입니다. [이미 저장소를 받아 둔 경우](#github-로그인-ssh-키-pc-마다-처음-한-번) 대로 `git remote set-url origin git@github.com:MAD2027/MAD2027.git` |
+| 컨테이너 안 `git commit` 에서 "Please tell me who you are" | 호스트에서 `git config --global user.name/user.email` 을 설정하고 컨테이너를 다시 엽니다 (`exit` 후 `./scripts/dev.sh`) |
 | 커밋이 pre-commit 에 막힘 | 자동 수정된 파일을 `git add` 후 다시 커밋합니다 |
 | main 에 커밋했다며 막힘 | `git switch -c <팀>/<이슈>-<설명>` 으로 브랜치를 만들고 커밋합니다 |
 | `/dev/ttyACM0` 권한 오류 | devcontainer.json 의 `--privileged` 주석을 해제하고 Rebuild 합니다. 윈도우는 `usbipd attach` 를 확인합니다 |

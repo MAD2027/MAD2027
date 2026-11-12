@@ -19,6 +19,7 @@ ROS2 Humble (Ubuntu 22.04) + Python/C++ + Arduino 기반 자율주행 프로젝�
 
 | 누구 | 읽을 문서 |
 |---|---|
+| **코딩·git·ROS2 가 처음** | [docs/BEGINNER.md](docs/BEGINNER.md) - 용어, 터미널 구분, 첫 노드 실행 실습 |
 | **새 노트북 / 새 팀원** | [docs/DEV_ENV.md](docs/DEV_ENV.md) - 윈도우·우분투·본체 노트북별 설치 |
 | **관리자** (처음 한 번) | [docs/ORG_SETUP.md](docs/ORG_SETUP.md) - Organization, 팀, 브랜치 보호, 프로젝트 보드 설정 |
 | **모든 팀원** | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) - 이슈 → 브랜치 → PR 흐름 |
