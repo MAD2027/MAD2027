@@ -8,7 +8,6 @@
 - 자율주행 차량: **ROS2 Humble + Ubuntu 22.04 + Python 3.10**(일부 C/C++) + Arduino
 - 4개 팀이 한 저장소를 쓴다. 팀과 담당 폴더는 아래 표와 `config/teams.yml` 이 기준이다.
 - **작업할 팀 폴더의 `AGENTS.md` 를 반드시 먼저 읽는다.** (예: `src/camera/AGENTS.md`) 팀별 규칙이 이 파일보다 우선한다.
-- 개발 시스템(공용 영역) 정비를 **이어서 작업할 때는 `docs/TODO.md` 를 먼저 읽는다.** 남은 일·결정 대기·권장 순서가 있다. 항목을 끝내면 같은 PR 에서 그 파일을 갱신한다.
 
 <!-- BEGIN TEAMS (scripts/teams.py sync 가 생성) -->
 | 팀 id | 이름 | 담당 폴더 | 설명 |
@@ -26,7 +25,7 @@
 1. **ROS2 Humble API 만 사용한다.** ROS1(`rospy`, `roscpp`, `catkin`) 금지. Jazzy 이후 전용 기능 금지. 노드는 `rclpy`/`rclcpp`, 빌드는 `colcon`, Python 패키지는 `ament_python`, C++ 은 `ament_cmake`.
 2. **명령은 공용 개발 컨테이너 안에서 실행한다** (`/ws` 가 저장소 루트). 윈도우 PowerShell 등 호스트에서 빌드/테스트를 돌리지 않는다. 컨테이너 밖이라면 사용자에게 알린다.
 3. **요청받은 팀 폴더 안에서만 수정한다.** 다른 팀 폴더, `src/interfaces/`, `src/bringup/`, `.github/`, `.devcontainer/`, `requirements*.txt` 는 사용자가 명시적으로 요청한 경우에만 바꾼다.
-4. **자동 생성 파일은 직접 고치지 않는다**: `.github/CODEOWNERS`, `.github/labeler.yml`, `.github/labels.json`, `.github/teams.json`, `.github/release.yml`, 각 폴더의 `CLAUDE.md`, 이 파일의 팀 표. → `config/teams.yml` 수정 후 `python3 scripts/teams.py sync`.
+4. **자동 생성 파일은 직접 고치지 않는다**: `.github/CODEOWNERS`, `.github/labeler.yml`, `.github/labels.json`, `.github/teams.json`, `.github/release.yml`, 각 폴더의 `CLAUDE.md`(루트 `CLAUDE.md` 의 `CLAUDE NOTES` 표시줄 아래 메모 구역만 예외), 이 파일의 팀 표. → `config/teams.yml` 수정 후 `python3 scripts/teams.py sync`.
 5. **팀 간 메시지는 `src/interfaces/mad_interfaces/msg/` 에만 정의**하고, 기존 필드는 삭제/이름변경/타입변경하지 않는다(추가만). 바꿔야 하면 코드를 고치기 전에 사용자에게 "인터페이스 변경 요청 이슈" 가 필요하다고 알린다.
 6. **비밀값 금지**: API 키, 토큰, 비밀번호를 코드·설정·로그·커밋 메시지에 쓰지 않는다. 환경 변수로 받는다.
 7. **의존성 추가**: apt/ROS 패키지는 해당 패키지의 `package.xml`, pip 는 `requirements.txt` 에 `이름==버전` 으로. `apt install`/`pip install` 을 직접 실행해 해결하고 끝내지 않는다.
