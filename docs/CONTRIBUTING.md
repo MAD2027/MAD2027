@@ -136,6 +136,23 @@ PR 을 만들거나 고칠 때마다 봇이 규칙을 검사하고, 어긋난 �
 
 > 리뷰 중 main 이 많이 바뀌었으면 `./scripts/sync_main.sh` 후 `git push`. PR 화면의 **Update branch** 버튼을 눌렀다면 내 PC 에서 `git pull` 로 받아온 뒤 작업합니다.
 
+### "Merging is blocked" 가 뜰 때
+PR 맨 아래에 `Merging is blocked - Waiting on code owner review from MAD2027/...` 이 보이면 에러가 아니라 **"이 코드의 담당 팀 승인이 아직 없다"** 는 뜻입니다. main 보호 규칙의 **Require review from Code Owners** 때문입니다.
+
+- 누가 승인해야 하는지는 `.github/CODEOWNERS` 에 있습니다: 팀 폴더(`src/camera/` 등)는 그 팀, `src/fusion/`·`src/interfaces/` 는 `leads`(팀 리더), 그 밖의 공용 파일(`docs/`, `scripts/`, `.github/` 등)은 `maintainers`. 여러 영역을 바꿨으면 **영역마다** 담당 팀의 승인이 필요합니다.
+- **PR 을 올린 본인은 자기 PR 을 승인할 수 없습니다.** 리더가 올린 PR 이라도 다른 리더나 관리자가 승인해야 합니다.
+
+| 메시지 | 해결 |
+|---|---|
+| `Waiting on code owner review from ...` | 오른쪽 **Reviewers** 에 그 팀이 요청돼 있는지 확인하고(없으면 톱니바퀴로 추가), 담당자에게 PR 링크를 보내 리뷰를 부탁합니다 |
+| `Review required` / `At least 1 approving review is required` | 승인(Approve)이 하나도 없습니다. 위와 같이 리뷰를 요청합니다 |
+| `Changes requested` | 리뷰어가 수정을 요청했습니다. 위 "리뷰에서 수정 요청을 받았을 때" 대로 고친 뒤 다시 리뷰를 요청합니다 |
+| `Some checks were not successful` / `CI 통과` 대기 | CI 가 실패했거나 아직 도는 중입니다. 위 "CI 가 실패했을 때" 를 봅니다 |
+| `All conversations must be resolved` | 리뷰 댓글 중 **Resolve conversation** 이 안 된 것이 있습니다. 반영하거나 답한 뒤 Resolve 합니다 |
+| `This branch has conflicts` | main 과 충돌입니다. `./scripts/sync_main.sh` 로 해결 ([TEAM_GUIDE.md - 충돌 해결](TEAM_GUIDE.md#충돌-해결)) |
+
+> 승인해 줄 수 있는 사람이 없다면(다른 리더가 GitHub 팀에 아직 없는 경우) 관리자에게 **Organization → Teams → leads / maintainers** 에 팀원 추가를 요청합니다. 규칙을 우회(Bypass)하지 않습니다.
+
 PR 을 올리면 자동으로 일어나는 일:
 
 | 자동화 | 내용 |
