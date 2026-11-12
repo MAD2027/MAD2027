@@ -12,6 +12,34 @@
  (보드: Todo)  (In Progress)                (보드에 보임)  (In Review)                      (Done, 이슈 자동 닫힘)
 ```
 
+## 0. 한눈에 보기
+
+### 처음 한 번 (PC 마다)
+| # | 할 일 | 어디서 | 자세히 |
+|---|---|---|---|
+| 1 | GitHub 가입 → **MAD2027 Organization 초대 수락** → 관리자가 내 팀에 추가 (= push 권한) | 웹 | [GUIDE.md 2장](GUIDE.md#2-새-팀원--새-노트북에-적용하기-약-3060분) |
+| 2 | Docker, VS Code 설치 (윈도우는 WSL2 안) | 호스트 | [DEV_ENV.md](DEV_ENV.md) |
+| 3 | 이름/이메일 설정, **SSH 키 등록**, `ssh -T git@github.com` 확인 (= 이 PC 를 내 GitHub 계정과 연결) | 호스트 | [DEV_ENV.md - GitHub 로그인](DEV_ENV.md#github-로그인-ssh-키-pc-마다-처음-한-번) |
+| 4 | `git clone git@github.com:MAD2027/MAD2027.git ~/mad2027` (저장소 받기) | 호스트 | 〃 |
+| 5 | `code .` → **Reopen in Container** (또는 `./scripts/dev.sh`) | 호스트 | [DEV_ENV.md](DEV_ENV.md) |
+| 6 | `./scripts/check.sh` 가 통과하면 준비 끝 | 컨테이너 | [GUIDE.md 2장](GUIDE.md#2-새-팀원--새-노트북에-적용하기-약-3060분) |
+
+### 작업할 때마다
+| # | 할 일 | 명령 / 화면 | 자세히 |
+|---|---|---|---|
+| 1 | 이슈 만들고 Assignees 에 나 | GitHub **Issues → New issue** | [1장](#1-이슈-만들기) |
+| 2 | 작업 브랜치 만들기 | `./scripts/start_task.sh <팀> <이슈번호> <설명>` | [2장](#2-브랜치-만들기) |
+| 3 | 코드 수정 → 커밋 (여러 번 해도 됨) | `git add -p` → `git commit -m "<팀>: ... (#이슈)"` | [3장](#3-개발하고-커밋하기) |
+| 4 | 매일 최신 main 받기 | `./scripts/sync_main.sh` | [3장](#3-개발하고-커밋하기) |
+| 5 | 올리기 전 검사 | `./scripts/check.sh <팀>` | [4장](#4-pr-올리기) |
+| 6 | GitHub 에 올리기 | `git push -u origin HEAD` (다음부터 `git push`) | [4장](#4-pr-올리기) |
+| 7 | 승인 요청서(PR) 만들기 → 완성되면 **Ready for review** | 터미널에 나온 링크 → **Create draft pull request** | [4-1](#4-1-웹에서-pr-만들기-화면-따라하기) |
+| 8 | CI 실패·수정 요청 반영 | 같은 브랜치에서 고쳐 `git push` (같은 PR 에 자동 반영) | [5장](#5-리뷰와-ci-결과에-대응하기-pr-을-올린-사람) |
+| 9 | 담당 팀 승인 + `CI 통과` → **Squash and merge** | PR 화면 | [7장](#7-병합) |
+| 10 | 내 PC 정리 후 다음 이슈로 | `git switch main && git pull --ff-only` | [7장](#7-병합) |
+
+> 명령은 모두 **컨테이너 터미널**에서 실행합니다 (`# [호스트]` 표시가 있는 것 제외). 터미널 구분은 [BEGINNER.md 1장](BEGINNER.md#1-터미널이-세-종류-있다).
+
 ## 1. 이슈 만들기
 
 GitHub → **Issues → New issue** → 양식 선택
@@ -35,6 +63,16 @@ GitHub → **Issues → New issue** → 양식 선택
 ./scripts/start_task.sh camera 12 lane-offset
 # = git fetch origin main && git switch -c camera/12-lane-offset origin/main
 ```
+
+`커밋하지 않은 변경이 있습니다. 먼저 커밋하거나 git stash 하세요.` 로 멈추면 (`git status` 로 무엇이 바뀌었는지 먼저 확인):
+
+| 상황 | 해결 |
+|---|---|
+| 이전 작업 브랜치에서 하던 일 | 그 브랜치에서 `git add` → `git commit` (필요하면 `git push`) 후 다시 `start_task.sh` |
+| 브랜치를 만들기 전에 **main 에서 이미 코드를 고쳐 버림** | 변경을 잠시 치워 두고 새 브랜치로 옮깁니다: `git stash` → `./scripts/start_task.sh ...` → `git stash pop` |
+| 필요 없는 변경 (실험, 실수) | 파일 하나: `git restore <파일>`, 전부: `git restore .` (**되돌릴 수 없으니** `git diff` 로 확인 후) |
+
+> `git stash pop` 에서 충돌이 나면 [TEAM_GUIDE.md - 충돌 해결](TEAM_GUIDE.md#충돌-해결) 과 같은 방법으로 정리합니다. stash 한 내용은 `git stash list` 로 볼 수 있습니다.
 
 | 접두사 | 용도 |
 |---|---|
@@ -135,6 +173,23 @@ PR 을 만들거나 고칠 때마다 봇이 규칙을 검사하고, 어긋난 �
 4. 오른쪽 **Reviewers** 의 리뷰어 이름 옆 🔄 (Re-request review) 를 눌러 다시 봐 달라고 요청합니다.
 
 > 리뷰 중 main 이 많이 바뀌었으면 `./scripts/sync_main.sh` 후 `git push`. PR 화면의 **Update branch** 버튼을 눌렀다면 내 PC 에서 `git pull` 로 받아온 뒤 작업합니다.
+
+### "Merging is blocked" 가 뜰 때
+PR 맨 아래에 `Merging is blocked - Waiting on code owner review from MAD2027/...` 이 보이면 에러가 아니라 **"이 코드의 담당 팀 승인이 아직 없다"** 는 뜻입니다. main 보호 규칙의 **Require review from Code Owners** 때문입니다.
+
+- 누가 승인해야 하는지는 `.github/CODEOWNERS` 에 있습니다: 팀 폴더(`src/camera/` 등)는 **그 팀 팀장**(팀장 본인 PR·부재 시 다른 리더, `leads`), `src/fusion/`·`src/interfaces/` 는 `leads`(팀 리더), 그 밖의 공용 파일(`docs/`, `scripts/`, `.github/` 등)은 `maintainers`. 여러 영역을 바꿨으면 **영역마다** 담당 팀의 승인이 필요합니다.
+- **PR 을 올린 본인은 자기 PR 을 승인할 수 없습니다.** 리더가 올린 PR 이라도 다른 리더나 관리자가 승인해야 합니다.
+
+| 메시지 | 해결 |
+|---|---|
+| `Waiting on code owner review from ...` | 오른쪽 **Reviewers** 에 그 팀이 요청돼 있는지 확인하고(없으면 톱니바퀴로 추가), 담당자에게 PR 링크를 보내 리뷰를 부탁합니다 |
+| `Review required` / `At least 1 approving review is required` | 승인(Approve)이 하나도 없습니다. 위와 같이 리뷰를 요청합니다 |
+| `Changes requested` | 리뷰어가 수정을 요청했습니다. 위 "리뷰에서 수정 요청을 받았을 때" 대로 고친 뒤 다시 리뷰를 요청합니다 |
+| `Some checks were not successful` / `CI 통과` 대기 | CI 가 실패했거나 아직 도는 중입니다. 위 "CI 가 실패했을 때" 를 봅니다 |
+| `All conversations must be resolved` | 리뷰 댓글 중 **Resolve conversation** 이 안 된 것이 있습니다. 반영하거나 답한 뒤 Resolve 합니다 |
+| `This branch has conflicts` | main 과 충돌입니다. `./scripts/sync_main.sh` 로 해결 ([TEAM_GUIDE.md - 충돌 해결](TEAM_GUIDE.md#충돌-해결)) |
+
+> 승인해 줄 수 있는 사람이 없다면(다른 리더가 GitHub 팀에 아직 없는 경우) 관리자에게 **Organization → Teams → leads / maintainers** 에 팀원 추가를 요청합니다. 규칙을 우회(Bypass)하지 않습니다.
 
 PR 을 올리면 자동으로 일어나는 일:
 

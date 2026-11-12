@@ -45,6 +45,14 @@ ssh -T git@github.com        # 처음엔 "Are you sure ...?" 에 yes 입력
     HostName ssh.github.com
     Port 443
   ```
+- **이미 저장소를 받아 둔 경우**: 예전에 https 주소로 clone 했다면 push 할 때 Username/Password 를 묻습니다. 저장소 폴더에서 주소를 SSH 로 바꿉니다 (한 번만, 코드는 그대로).
+  ```bash
+  # [호스트] (저장소 폴더, 예: cd ~/mad2027)
+  git remote -v                                                   # https://github.com/... 이면 아래 실행
+  git remote set-url origin git@github.com:MAD2027/MAD2027.git
+  git remote -v                                                   # git@github.com:MAD2027/MAD2027.git 확인
+  git fetch origin                                                # 에러 없이 끝나면 연결 성공
+  ```
 - 이 설정은 컨테이너에도 그대로 전달됩니다. VS Code 컨테이너는 이름/이메일을 자동으로 복사하고, `./scripts/dev.sh` 는 호스트의 `~/.gitconfig`, `~/.ssh` 를 읽기 전용으로 연결합니다. 그래서 **git 설정은 항상 호스트에서** 바꿉니다 (컨테이너 안의 `git config --global` 은 실패합니다).
 
 ---
@@ -221,7 +229,9 @@ claude        # 또는 codex, grok
 | rviz2 창이 안 뜸 | 우분투: 호스트에서 `xhost +local:` 실행. 윈도우: `wsl --update` 로 WSLg 최신화 |
 | `Package 'xxx' not found` | `source install/setup.bash`. 새 의존성이면 `rosdep install --from-paths src --ignore-src -y` |
 | `git push` 에서 `Permission denied (publickey)` | SSH 키가 GitHub 에 등록되지 않았거나 다른 키입니다. 호스트에서 `ssh -T git@github.com` 으로 확인합니다. VS Code 컨테이너에서만 실패하면 호스트에서 `ssh-add ~/.ssh/id_ed25519` 후 컨테이너를 다시 엽니다 |
-| `git push` 가 Username/Password 를 물음 | 저장소를 https 주소로 받은 경우입니다. `git remote set-url origin git@github.com:MAD2027/MAD2027.git` |
+| `git push` 에서 `ERROR: Permission to MAD2027/MAD2027.git denied to <내 아이디>` | 로그인은 됐지만 **저장소 쓰기 권한이 없는** 경우입니다. ① GitHub 알림/메일의 **Organization 초대를 수락**했는지 확인 (https://github.com/MAD2027 에서 확인) ② 관리자에게 내 팀(`team-camera` 등)에 추가해 달라고 요청합니다 (팀에 들어가야 Write 권한이 생김, [ORG_SETUP.md 3단계](ORG_SETUP.md#3-팀원-초대와-팀-만들기)). 권한이 생기기 전에 커밋한 내용은 그대로 두었다가 다시 `git push` 하면 됩니다 |
+| `ERROR: Repository not found` (clone/push) | 주소 오타이거나, 비공개 저장소인데 아직 초대를 수락하지 않은 경우입니다. 주소(`git remote -v`)와 초대 수락을 확인합니다 |
+| `git push` 가 Username/Password 를 물음 | 저장소를 https 주소로 받은 경우입니다. [이미 저장소를 받아 둔 경우](#github-로그인-ssh-키-pc-마다-처음-한-번) 대로 `git remote set-url origin git@github.com:MAD2027/MAD2027.git` |
 | 컨테이너 안 `git commit` 에서 "Please tell me who you are" | 호스트에서 `git config --global user.name/user.email` 을 설정하고 컨테이너를 다시 엽니다 (`exit` 후 `./scripts/dev.sh`) |
 | 커밋이 pre-commit 에 막힘 | 자동 수정된 파일을 `git add` 후 다시 커밋합니다 |
 | main 에 커밋했다며 막힘 | `git switch -c <팀>/<이슈>-<설명>` 으로 브랜치를 만들고 커밋합니다 |
