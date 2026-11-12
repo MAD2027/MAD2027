@@ -48,8 +48,9 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# VS Code 와 달리 setup.sh 가 실행되지 않으므로, 커밋 전 스타일 검사(pre-commit 훅)가 없으면 먼저 설치한다
-hook='[ -f .git/hooks/pre-commit ] || pre-commit install >/dev/null 2>&1 || true; exec "$@"'
+# VS Code 와 달리 setup.sh 가 실행되지 않으므로, git 훅(커밋 스타일·메시지, push 규칙)이 없으면 먼저 설치한다
+# shellcheck disable=SC2016  # 컨테이너 안의 bash 가 펼칠 문자열
+hook='for h in pre-commit commit-msg pre-push; do [ -f .git/hooks/$h ] || { pre-commit install >/dev/null 2>&1; break; }; done; exec "$@"'
 cmd=(bash -c "$hook" _ "${cmd[@]}")
 
 if docker ps --format '{{.Names}}' | grep -qx "$name"; then

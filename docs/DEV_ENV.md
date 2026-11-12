@@ -197,6 +197,7 @@ claude        # 또는 codex, grok
 | 명령 | 설명 |
 |---|---|
 | `./scripts/start_task.sh <팀> <이슈> <설명>` | 최신 main 에서 작업 브랜치 생성 |
+| `./scripts/finish_task.sh` | 작업 마무리: 검사 → push(처음이면 `-u`) → PR 생성 링크 |
 | `./scripts/sync_main.sh` | 작업 브랜치에 최신 main 병합 |
 | `./scripts/check.sh [팀]` | 스타일 + 빌드 + 테스트 + 아두이노 컴파일 (CI 와 동일) |
 | `./scripts/new_package.sh <팀> <이름> [python\|cpp]` | ROS2 패키지 생성 (저장소 스타일 ruff/clang-format 과 충돌하는 ament 린터는 자동 제외) |
