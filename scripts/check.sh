@@ -11,6 +11,9 @@ if [ -n "$team" ] && ! python3 scripts/teams.py list | grep -qx "$team"; then
 fi
 
 echo "▶ 1/4 코드 스타일 (pre-commit)"
+for h in pre-commit commit-msg pre-push; do   # git 훅이 빠져 있으면 설치 (커밋 메시지·브랜치 규칙 검사 포함)
+  [ -f ".git/hooks/$h" ] || { pre-commit install >/dev/null && echo "  git 훅 설치 완료"; break; }
+done
 pre-commit run --all-files
 
 # shellcheck disable=SC1090
