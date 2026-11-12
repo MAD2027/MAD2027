@@ -46,8 +46,10 @@
 
 > AI 코딩 도구(Claude Code, Codex, Grok)를 쓴다면 3단계 후 [AI_TOOLS.md](AI_TOOLS.md) 를 보고 **컨테이너 안에서** 로그인합니다.
 
+> git·ROS2 가 처음이면 먼저 [BEGINNER.md](BEGINNER.md) 를 읽습니다 (30분).
+
 1. GitHub 계정을 만들고, Organization 초대 메일을 수락합니다.
-2. 자기 OS 에 맞게 설치합니다: [윈도우](DEV_ENV.md#윈도우-노트북) / [우분투](DEV_ENV.md#우분투-노트북)
+2. 자기 OS 에 맞게 설치하고, [GitHub 로그인(SSH 키)](DEV_ENV.md#github-로그인-ssh-키-pc-마다-처음-한-번) 을 합니다: [윈도우](DEV_ENV.md#윈도우-노트북) / [우분투](DEV_ENV.md#우분투-노트북)
    - 핵심: Docker 와 VS Code 를 설치하고, 저장소를 clone 한 뒤 **Reopen in Container** 를 누릅니다.
 3. 컨테이너 터미널에서 확인합니다.
    ```bash
