@@ -8,6 +8,7 @@
 - 자율주행 차량: **ROS2 Humble + Ubuntu 22.04 + Python 3.10**(일부 C/C++) + Arduino
 - 4개 팀이 한 저장소를 쓴다. 팀과 담당 폴더는 아래 표와 `config/teams.yml` 이 기준이다.
 - **작업할 팀 폴더의 `AGENTS.md` 를 반드시 먼저 읽는다.** (예: `src/camera/AGENTS.md`) 팀별 규칙이 이 파일보다 우선한다.
+- 개발 시스템(공용 영역) 정비를 **이어서 작업할 때는 `docs/TODO.md` 를 먼저 읽는다.** 남은 일·결정 대기·권장 순서가 있다. 항목을 끝내면 같은 PR 에서 그 파일을 갱신한다.
 
 <!-- BEGIN TEAMS (scripts/teams.py sync 가 생성) -->
 | 팀 id | 이름 | 담당 폴더 | 설명 |
