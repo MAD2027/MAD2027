@@ -1,3 +1,8 @@
+"""융합 런치 (통합 런치 mad_bringup/system.launch.py 의 TEAM_LAUNCHES 에서 포함된다).
+
+ros2 launch mad_fusion fusion.launch.py use_sim_time:=true   # rosbag 재생 시
+"""
+
 import os
 
 from ament_index_python.packages import get_package_share_directory
