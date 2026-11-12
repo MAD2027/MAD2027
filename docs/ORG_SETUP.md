@@ -32,7 +32,7 @@
 3. (권장) **Settings → General → Repository name** 에서 이름을 알아보기 쉽게 변경 (예: `autonomous-car`)
    - 이전/이름 변경 후 옛 주소는 자동으로 새 주소로 연결되지만, 팀원은 아래 명령으로 주소를 갱신하세요.
    ```bash
-   git remote set-url origin https://github.com/<org>/<repo>.git
+   git remote set-url origin git@github.com:MAD2027/MAD2027.git   # SSH (docs/DEV_ENV.md "GitHub 로그인")
    ```
 
 ## 3. 팀원 초대와 팀 만들기
@@ -147,7 +147,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - [ ] main 에 직접 push 하면 거부된다
 - [ ] 테스트 PR 을 올렸을 때 팀 라벨이 붙고, 코드 오너 리뷰가 요청되고, `CI 통과` 체크가 돈다
 - [ ] 새 이슈가 프로젝트 보드에 자동으로 나타난다
-- [ ] `ghcr.io/<org>/mad-dev:humble` 이미지가 있고 Public 이다
+- [ ] `ghcr.io/mad2027/mad-dev:humble` 이미지가 있고 Public 이다
 - [ ] 본체 노트북에서 `--capture` 한 `config/target_env.yml` 이 main 에 있다
 - [ ] 본체 노트북 러너가 Settings → Actions → Runners 에 `Idle` 로 보인다
 - [ ] 진행 리포트를 수동 실행했을 때 노션 데이터베이스에 행이 생긴다
