@@ -24,7 +24,7 @@
   - 누구도 자기 PR 은 승인 불가. `team-*` 팀에 저장소 **Write** 권한이 있어야 팀원 승인이 인정됨 (H1 에서 확인)
   - `config/teams.yml` 의 팀별 `lead:`(팀장 아이디)는 비어 있음 (C2)
   - 보호 규칙(ORG_SETUP 5장): 승인 1, Code Owners 필수, 새 push 시 승인 무효, 대화 Resolve 필수, `CI 통과` 필수, Squash. 실제 설정은 미확인 (H2)
-- **열린 PR**: C1(이슈 #47) PR. #46 병합됨. 11-12 기준으로 열려 있던 #43·#44·#40·#27·Dependabot #2~#5 도 모두 병합됨
+- **열린 PR**: #48 (C1, 이슈 #47). #46 병합됨. 11-12 기준으로 열려 있던 #43·#44·#40·#27·Dependabot #2~#5 도 모두 병합됨
   - #40(`setup-host.sh`)은 H4 실제 실행 검증 **전에** 병합됨 → H4 는 여전히 필요, 문제가 나오면 후속 PR 로 수정
 - 센서 팀 폴더(`src/camera|gps|lidar|control/`)는 아직 문서만 있고 패키지 없음. `fusion_inputs.yaml`·`static_tf.yaml` 은 빈 목록 (팀 개발 시작 후 채움, 이 목록 범위 밖)
 - `config/target_env.yml`(본체 노트북 기준 사양)이 비어 있음 (H3)
@@ -43,7 +43,7 @@
 | H2 | 저장소 Settings → Rules 의 실제 보호 규칙이 ORG_SETUP 5장과 같은지 확인 | |
 | H3 | 본체 노트북에서 `python3 scripts/env_check.py --capture` → PR | `.wslconfig`·설치 스크립트의 사양 기준 |
 | H4 | `scripts/installer/setup-host.sh`(#40, 이미 병합) 실제 실행 검증: WSL(이미 수동 설치한 PC 에서 "건너뜀" 동작), 가능하면 새 Ubuntu 22.04 | 결과(멈춘 화면)를 AI 에 전달 → 수정 |
-| H5 | PR 리뷰·병합. 남은 것: C1(이슈 #47) PR. 병합된 #27 은 컨테이너에서 `ros2 launch mad_bringup system.launch.py use_sim_time:=true` 확인 권장 | 작성자 본인은 승인 불가 |
+| H5 | PR 리뷰·병합. 남은 것: #48 (C1). 병합된 #27 은 컨테이너에서 `ros2 launch mad_bringup system.launch.py use_sim_time:=true` 확인 권장 | 작성자 본인은 승인 불가 |
 | H6 | 병합된 #6(actions/labeler 5→7) 이 다음 팀 PR 에서 `team:xxx` 라벨을 붙이는지 확인 | 안 붙으면 #6 되돌리기, `teams.py gen_labeler` 확인 |
 | H7 | 팀원별 ROS_DOMAIN_ID 배정·공유 | 팀당 10개 범위 (TEAM_GUIDE) |
 
@@ -86,4 +86,4 @@
 | Dependabot: checkout 5→7, cache 4→6, docker/login-action 3→4, setup-python 6→7 | #2 #3 #4 #5 |
 | ~~C4: #27 용 이슈 연결~~ → #27 이 병합되어 불필요 | - |
 | 할 일 목록을 루트 CLAUDE.md 메모 구역에 기록 (이슈 #45) | #46 |
-| C1: 같은 팀끼리 서로 승인(D1=B) - `code_owners` 에 `team`, 4팀 `[team, leads, maintainers]`, CONTRIBUTING·TEAM_GUIDE·ORG_SETUP·README 8~9명 기준 (이슈 #47) | (이 PR) |
+| C1: 같은 팀끼리 서로 승인(D1=B) - `code_owners` 에 `team`, 4팀 `[team, leads, maintainers]`, CONTRIBUTING·TEAM_GUIDE·ORG_SETUP·README 8~9명 기준 (이슈 #47) | #48 |
