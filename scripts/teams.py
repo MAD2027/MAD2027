@@ -230,6 +230,18 @@ CLAUDE_STUB = (
 )
 
 
+# 루트 CLAUDE.md 에서 이 줄 아래는 sync 가 지우지 않는다 (Claude 전용 메모: 진행 중인 할 일 등)
+CLAUDE_NOTES_MARK = "<!-- CLAUDE NOTES: 이 줄 아래는 scripts/teams.py sync 가 지우지 않는다 -->"
+
+
+def root_claude() -> str:
+    path = ROOT / "CLAUDE.md"
+    text = path.read_text(encoding="utf-8") if path.exists() else ""
+    if CLAUDE_NOTES_MARK not in text:
+        return CLAUDE_STUB
+    return CLAUDE_STUB + "\n" + CLAUDE_NOTES_MARK + text.split(CLAUDE_NOTES_MARK, 1)[1]
+
+
 def update_agents_root(text: str, cfg: dict) -> str:
     rows = ["| 팀 id | 이름 | 담당 폴더 | 설명 |", "|---|---|---|---|"]
     for t in cfg["teams"]:
@@ -268,7 +280,7 @@ def render_all(cfg: dict) -> dict[Path, str]:
         out[form] = update_issue_form(form.read_text(encoding="utf-8"), cfg)
     out[DEVCONTAINER] = DEV_IMAGE_RE.sub(f'"image": "{dev_image(cfg)}"', DEVCONTAINER.read_text(encoding="utf-8"))
     out[AGENTS_ROOT] = update_agents_root(AGENTS_ROOT.read_text(encoding="utf-8"), cfg)
-    out[ROOT / "CLAUDE.md"] = CLAUDE_STUB
+    out[ROOT / "CLAUDE.md"] = root_claude()
     for team in cfg["teams"]:
         for p in team["paths"]:
             agents = ROOT / p / "AGENTS.md"
