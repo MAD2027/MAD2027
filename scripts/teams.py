@@ -80,8 +80,8 @@ def load_config() -> dict:
         team["lead"] = lead
         team["code_owners"] = list(team.get("code_owners") or [])
         for owner in team["code_owners"]:
-            if f"{owner}_team" not in cfg:
-                sys.exit(f"팀 '{tid}' 의 code_owners '{owner}' 를 찾을 수 없습니다 (가능: leads, maintainers)")
+            if owner != "team" and f"{owner}_team" not in cfg:
+                sys.exit(f"팀 '{tid}' 의 code_owners '{owner}' 를 찾을 수 없습니다 (가능: team, leads, maintainers)")
     for area in cfg.get("shared", []):
         area["path"] = area["path"].rstrip("/") + "/"
     return cfg
@@ -92,10 +92,16 @@ def handle(org: str, team_slug: str) -> str:
 
 
 def team_code_owners(cfg: dict, team: dict) -> list[str]:
-    """팀 폴더 승인권자: 팀장 개인 + code_owners 팀. 둘 다 없으면 팀 전체(github_team)."""
+    """팀 폴더 승인권자: 팀장 개인 + code_owners 팀. 둘 다 없으면 팀 전체(github_team).
+
+    code_owners 의 "team" 은 그 팀 자신의 github_team (같은 팀 사람끼리 서로 승인).
+    """
     org = cfg["org"]
     owners = [f"@{team['lead']}"] if team["lead"] else []
-    owners += [handle(org, cfg[f"{o}_team"]) for o in team["code_owners"]]
+    for o in team["code_owners"]:
+        slug = team["github_team"] if o == "team" else cfg[f"{o}_team"]
+        owners.append(handle(org, slug))
+    owners = list(dict.fromkeys(owners))  # 같은 팀이 두 번 나오지 않게 (예: fusion 의 github_team 이 leads)
     return owners or [handle(org, team["github_team"])]
 
 
