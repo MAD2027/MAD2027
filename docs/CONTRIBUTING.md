@@ -118,7 +118,7 @@ push 하면 터미널에 PR 생성 링크가 나옵니다. `finish_task.sh` 의 
 
 - **작업 초반에 Draft PR 을 열어 두세요.** 다른 사람이 진행 상황을 볼 수 있습니다.
 - 제목은 `[camera] 차선 중심 오프셋 발행` 형식으로 쓰고, 본문에는 `Closes #12` 를 넣습니다. 그래야 병합할 때 이슈가 자동으로 닫힙니다.
-- 완성되면 **Ready for review** 를 누릅니다. 바꾼 폴더의 승인권자(팀 폴더는 **그 팀 팀장**과 `leads`)에게 리뷰가 자동으로 요청됩니다. 같은 팀원에게도 Reviewers 에서 직접 리뷰를 요청해 두면 좋습니다.
+- 완성되면 **Ready for review** 를 누릅니다. 바꾼 폴더의 승인권자(팀 폴더는 **그 팀**(`team-*`)과 `leads`·`maintainers`)에게 리뷰가 자동으로 요청됩니다. 같은 팀 사람에게 승인을 부탁합니다 (팀원 PR=팀장, 팀장 PR=팀원).
 
 ### 4-1. 웹에서 PR 만들기 (화면 따라하기)
 
@@ -189,8 +189,8 @@ PR 을 만들거나 고칠 때마다 봇이 규칙을 검사하고, 어긋난 �
 ### "Merging is blocked" 가 뜰 때
 PR 맨 아래에 `Merging is blocked - Waiting on code owner review from MAD2027/...` 이 보이면 에러가 아니라 **"이 코드의 담당 팀 승인이 아직 없다"** 는 뜻입니다. main 보호 규칙의 **Require review from Code Owners** 때문입니다.
 
-- 누가 승인해야 하는지는 `.github/CODEOWNERS` 에 있습니다: 팀 폴더(`src/camera/` 등)는 **그 팀 팀장**(팀장 본인 PR·부재 시 다른 리더, `leads`), `src/fusion/`·`src/interfaces/` 는 `leads`(팀 리더), 그 밖의 공용 파일(`docs/`, `scripts/`, `.github/` 등)은 `maintainers`. 여러 영역을 바꿨으면 **영역마다** 담당 팀의 승인이 필요합니다.
-- **PR 을 올린 본인은 자기 PR 을 승인할 수 없습니다.** 리더가 올린 PR 이라도 다른 리더나 관리자가 승인해야 합니다.
+- 누가 승인해야 하는지는 `.github/CODEOWNERS` 에 있습니다: 팀 폴더(`src/camera/` 등)는 **같은 팀 사람**(`team-*`, 없거나 부재 시 다른 팀장 `leads`·전체 팀장 `maintainers`), `src/fusion/`·`src/interfaces/` 는 `leads`(팀 리더), 그 밖의 공용 파일(`docs/`, `scripts/`, `.github/` 등)은 `maintainers`. 여러 영역을 바꿨으면 **영역마다** 담당 팀의 승인이 필요합니다.
+- **PR 을 올린 본인은 자기 PR 을 승인할 수 없습니다.** 팀장이 올린 PR 은 같은 팀 팀원이, 팀원이 없으면 다른 팀장이나 전체 팀장이 승인합니다.
 
 | 메시지 | 해결 |
 |---|---|
@@ -201,7 +201,7 @@ PR 맨 아래에 `Merging is blocked - Waiting on code owner review from MAD2027
 | `All conversations must be resolved` | 리뷰 댓글 중 **Resolve conversation** 이 안 된 것이 있습니다. 반영하거나 답한 뒤 Resolve 합니다 |
 | `This branch has conflicts` | main 과 충돌입니다. `./scripts/sync_main.sh` 로 해결 ([TEAM_GUIDE.md - 충돌 해결](TEAM_GUIDE.md#충돌-해결)) |
 
-> 승인해 줄 수 있는 사람이 없다면(다른 리더가 GitHub 팀에 아직 없는 경우) 관리자에게 **Organization → Teams → leads / maintainers** 에 팀원 추가를 요청합니다. 규칙을 우회(Bypass)하지 않습니다.
+> 승인해 줄 수 있는 사람이 없다면(같은 팀 사람이나 다른 팀장이 GitHub 팀에 아직 없는 경우) 관리자에게 **Organization → Teams → `team-*` / leads / maintainers** 에 추가를 요청합니다. 규칙을 우회(Bypass)하지 않습니다.
 
 PR 을 올리면 자동으로 일어나는 일:
 
@@ -222,18 +222,20 @@ PR 을 올리면 자동으로 일어나는 일:
 - 볼 것: 동작하는가 / 테스트가 있는가 / 토픽 이름·메시지 타입이 인터페이스 문서와 맞는가 / 타임아웃·예외 처리
 - 승인(Approve) 1개와 `CI 통과` 가 모두 있어야 병합할 수 있습니다.
 
-### 누가 승인하나 (팀장 승인 원칙)
-승인권자는 `config/teams.yml` 의 `lead`(팀장 GitHub 아이디), `code_owners` 로 정하고 `.github/CODEOWNERS` 에 자동 반영됩니다.
+### 누가 승인하나
+팀은 팀장 1명 + 팀원 0~1명이라 **같은 팀 사람끼리 서로 승인**합니다. 승인권자는 `config/teams.yml` 의 `lead`(팀장 GitHub 아이디), `code_owners`(`team`, `leads`, `maintainers`) 로 정하고 `.github/CODEOWNERS` 에 자동 반영됩니다.
 
 | 바꾼 폴더 | 승인 | 비고 |
 |---|---|---|
-| 팀 폴더 (`src/camera/` 등, 제어 팀은 `firmware/` 포함) | **그 팀 팀장** | 팀원은 먼저 리뷰(Comment)로 의견을 남기고, 팀장이 최종 승인 |
-| 팀장 본인이 올린 PR, 팀장이 자리를 비울 때 | **다른 팀 리더**(`leads`) | 자기 PR 은 승인할 수 없으므로. PR 댓글에 이유를 남깁니다 |
-| 리더가 모두 자리를 비운 급한 경우 | **전체 팀장**(`maintainers`) | 예비 승인. PR 댓글에 이유를 남기고, 팀장이 돌아오면 확인받습니다 |
-| `src/fusion/`, `src/interfaces/` | 리더 중 누구나 (`leads`) | 팀 리더 공동 담당 |
+| 팀 폴더 (`src/camera/` 등, 제어 팀은 `firmware/` 포함) - 팀원이 올린 PR | **그 팀 팀장** | |
+| 팀 폴더 - 팀장이 올린 PR | **그 팀 팀원** | 자기 PR 은 승인할 수 없으므로 |
+| 팀원이 없는 팀의 팀장 PR, 같은 팀 사람이 자리를 비울 때 | **다른 팀장**(`leads`) | 대리 승인. PR 댓글에 이유를 남깁니다 |
+| 팀장이 모두 자리를 비운 급한 경우 | **전체 팀장**(`maintainers`) | 대리 승인. PR 댓글에 이유를 남기고, 그 팀이 돌아오면 확인받습니다 |
+| `src/fusion/` | 팀장 중 누구나 (`leads`) | 주 담당은 자율주행팀 팀장. 그 팀장의 PR 은 다른 팀장이 승인 |
+| `src/interfaces/` | 팀장 중 누구나 (`leads`) | 팀장 공동 담당 (변경은 전원 동의, [TEAM_GUIDE](TEAM_GUIDE.md)) |
 | 그 밖의 공용 파일 (`docs/`, `scripts/`, `.github/` 등) | `maintainers` | |
 
-> GitHub 은 "`leads` 중 누구나" 까지만 강제할 수 있습니다. **팀 폴더는 원칙적으로 자기 팀장이 승인**하고, 다른 리더와 전체 팀장은 위 표의 예외일 때만 승인합니다. (팀 폴더 PR 에는 `maintainers` 에게도 리뷰 요청이 가지만, 예외가 아니면 지나쳐도 됩니다.)
+> GitHub 은 "CODEOWNERS 에 적힌 팀 중 누구나" 까지만 강제할 수 있습니다. **팀 폴더는 원칙적으로 같은 팀 사람이 승인**하고, 다른 팀장과 전체 팀장은 위 표의 대리 경우에만 승인합니다. (팀 폴더 PR 에는 `leads`·`maintainers` 에게도 리뷰 요청이 가지만, 대리 경우가 아니면 지나쳐도 됩니다.)
 > 승인 뒤 새로 push 하면 승인이 사라지므로(Dismiss stale approvals) 다시 승인을 받아야 합니다.
 
 ## 7. 병합

@@ -43,14 +43,14 @@
 
 | 팀 slug | 구성원 | 역할 |
 |---|---|---|
-| `maintainers` | 프로젝트 관리자 + 각 팀 리더 | 공용 영역(통합 런치, CI, 설정) 승인 |
-| `leads` | 각 팀 리더 4명 | 팀 폴더 승인(자기 팀장 원칙), 인터페이스(메시지)·융합 승인 |
-| `team-camera` | 카메라 팀원 | `src/camera/` push 권한, `@멘션` |
-| `team-gps` | GPS 팀원 | `src/gps/` push 권한, `@멘션` |
-| `team-lidar` | 라이다 팀원 | `src/lidar/` push 권한, `@멘션` |
-| `team-control` | 제어 팀원 | `src/control/`, `firmware/` push 권한, `@멘션` |
+| `maintainers` | 전체 팀장 + 각 팀장 | 공용 영역(통합 런치, CI, 설정) 승인, 팀 폴더 대리 승인 |
+| `leads` | 각 팀장 4명 | 인터페이스(메시지)·융합 승인, 팀 폴더 대리 승인(팀원 없는 팀·부재 시) |
+| `team-camera` | 카메라 팀장 + 팀원 | `src/camera/` push 권한, `@멘션` |
+| `team-gps` | GPS 팀장 + 팀원 | `src/gps/` push 권한, `@멘션` |
+| `team-lidar` | 라이다 팀장 + 팀원 | `src/lidar/` push 권한, `@멘션` |
+| `team-control` | 제어 팀장 + 팀원 | `src/control/`, `firmware/` push 권한, `@멘션` |
 
-팀 폴더 승인은 **팀장**이 합니다. 팀장 GitHub 아이디를 `config/teams.yml` 의 각 팀 `lead:` 에 적고 `python3 scripts/teams.py sync` → PR 하면 `.github/CODEOWNERS` 가 `/src/camera/ @팀장아이디 @MAD2027/leads @MAD2027/maintainers` 처럼 갱신됩니다 (`maintainers` = 전체 팀장의 예비 승인). 팀장은 반드시 `leads` 팀에 넣습니다 (Write 권한이 있어야 CODEOWNERS 가 인정).
+팀 폴더 승인은 **같은 팀 사람끼리** 합니다 (팀원 PR=팀장, 팀장 PR=팀원). 그래서 `.github/CODEOWNERS` 는 `/src/camera/ @MAD2027/team-camera @MAD2027/leads @MAD2027/maintainers` 처럼 그 팀(`team-*`)과 대리 승인용 `leads`·`maintainers` 를 함께 적습니다 (`config/teams.yml` 의 `code_owners: [team, leads, maintainers]`). 팀장 GitHub 아이디를 각 팀 `lead:` 에 적고 `python3 scripts/teams.py sync` 하면 팀장에게도 직접 리뷰 요청이 갑니다. 팀장은 `leads`·`maintainers`·자기 `team-*` 에, 팀원은 자기 `team-*` 에 넣습니다. **모든 팀에 저장소 Write 권한**이 있어야 CODEOWNERS 가 그 팀의 승인을 인정합니다 (아래).
 
 각 팀 페이지 → **Repositories → Add repository** → 저장소 선택 → 권한 **Write**
 (`maintainers` 팀은 **Maintain**)
@@ -85,12 +85,12 @@ git push -u origin HEAD            # → PR 생성 → 병합
   - ✅ **Require a pull request before merging**
     - Required approvals: **1**
     - ✅ Dismiss stale pull request approvals when new commits are pushed
-    - ✅ **Require review from Code Owners** ← 팀 폴더는 그 팀 팀장(또는 다른 리더, 급하면 전체 팀장)이, 인터페이스·융합은 리더가, 공용 파일은 maintainers 가 승인
+    - ✅ **Require review from Code Owners** ← 팀 폴더는 같은 팀 사람(팀원 없거나 부재 시 다른 팀장, 급하면 전체 팀장)이, 인터페이스·융합은 팀장(`leads`)이, 공용 파일은 maintainers 가 승인
     - ✅ Require conversation resolution before merging
     - Allowed merge methods: **Squash** (PR 하나 = main 커밋 하나 → 기록이 깔끔)
   - ✅ **Require status checks to pass**
     - **Add checks** → `CI 통과` 추가 (CI 를 한 번 이상 실행한 뒤에 목록에 나타납니다)
-    - "Require branches to be up to date" 는 **끄기** 권장 (16명이 쓰면 매번 재실행 대기 → 병목). 대신 야간 통합 빌드가 main 을 검증합니다.
+    - "Require branches to be up to date" 는 **끄기** 권장 (여러 명이 동시에 PR 을 올리면 매번 재실행 대기 → 병목). 대신 야간 통합 빌드가 main 을 검증합니다.
 
 **Settings → General → Pull Requests**
 - ✅ Allow squash merging (나머지 merge/rebase 는 해제)
