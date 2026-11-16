@@ -45,7 +45,7 @@
 | H5 | PR 리뷰·병합. 남은 것: 이슈 #53 PR (승인 없이 병합해 H2 확인). 병합된 #27 은 컨테이너에서 `ros2 launch mad_bringup system.launch.py use_sim_time:=true` 확인 권장 | 승인은 필수 아님 (#52). `CI 통과` 후 작성자가 병합 가능 |
 | H6 | 병합된 #6(actions/labeler 5→7) 이 다음 팀 PR 에서 `team:xxx` 라벨을 붙이는지 확인 | 안 붙으면 #6 되돌리기, `teams.py gen_labeler` 확인 |
 | H7 | 팀원별 ROS_DOMAIN_ID 배정·공유 | 팀당 10개 범위 (TEAM_GUIDE) |
-| H8 | (C7 PR 후, 본체) `setup-host.sh` → `./scripts/dev.sh --gpu -- nvidia-smi` → `./scripts/gpu_bench.sh` → `report.md` 를 이슈 #57 에 댓글. H3(`--capture`)도 GPU 연결 후 같이 | 충전기 연결, 다른 프로그램 종료. H4 와 함께 하면 한 번에 끝남 |
+| H8 | (C7 PR 후, 본체) GPU 측정 → `report.md` 를 이슈 #57 에 댓글. H3(`--capture`)도 같이. **명령은 아래 "바로 쓰는 절차: 본체 GPU 측정"** | 충전기 연결, 다른 프로그램 종료. H4 와 함께 하면 한 번에 끝남 |
 
 ## C. AI(Claude 등) 가 할 일
 | # | 할 일 | 산출물 | 선행 |
@@ -64,6 +64,53 @@
 5. H4 → C5. C7(GPU) PR 병합 → H8 측정 (H4 와 같이)
 6. H6 (다음 팀 PR 에서)
 7. C6 (필요할 때)
+
+## 바로 쓰는 절차: 본체 GPU 측정 (H8, 이슈 #57)
+> 사용자가 "GPU 측정 방법", "본체 측정", "H8" 등을 물으면 **이 구역을 그대로 보여 준다** (다시 조사하지 않는다).
+> 명령은 각각 복사해 실행할 수 있게 따로 보여 준다. 결과(`report.md`)를 받으면 이슈 #57 에 정리하고 이 목록을 갱신한다.
+> 전제: #58(C7) 이 병합되어 본체 저장소가 최신 main 이어야 한다 (`git switch main && git pull`). 병합 전이면 `git fetch origin claude/hopeful-brahmagupta-9t8dtb && git switch --detach FETCH_HEAD` 로 PR 브랜치에서 측정 가능.
+
+어디서: **본체 우분투 터미널, 저장소 폴더**(`cd ~/mad2027`). 컨테이너 안이 아님 (`./scripts/dev.sh` 로 들어가지 않는다).
+
+1. 드라이버 확인 - GPU 이름과 드라이버 버전이 나와야 함. 측정용 torch 2.9.1(CUDA 12.8) 은 **드라이버 570 이상** 필요
+   ```bash
+   nvidia-smi
+   ```
+   안 되거나 570 미만이면 설치 후 재부팅 (Secure Boot 화면이 나오면 MOK 등록), 그 뒤 1번부터 다시
+   ```bash
+   sudo ubuntu-drivers install && sudo reboot
+   ```
+2. NVIDIA Container Toolkit 설치·docker 연결 (처음 한 번, 이미 된 단계는 건너뜀)
+   ```bash
+   ./scripts/installer/setup-host.sh --team vehicle --no-vscode
+   ```
+3. 컨테이너에서 GPU 보이는지 확인 - GPU 이름이 나오면 성공
+   ```bash
+   ./scripts/dev.sh --gpu -- nvidia-smi
+   ```
+4. 측정 (15~30분, 처음에는 측정용 패키지 수 GB 다운로드). **충전기 연결, 브라우저 등 다른 프로그램 종료** 후
+   ```bash
+   ./scripts/gpu_bench.sh
+   ```
+   카메라 팀 실제 모델로: `./scripts/gpu_bench.sh --model <가중치.pt>` / 횟수 늘리기: `--runs 500`
+5. 결과 확인 - 마지막에 출력된 경로의 표를 이슈 #57 댓글로 붙인다
+   ```bash
+   cat "$(ls -d .cache/gpu-bench/results/*/ | tail -1)report.md"
+   ```
+6. (함께) 기준 환경 기록 H3 - GPU 가 연결된 상태로 기록 → `config/target_env.yml` 을 PR
+   ```bash
+   ./scripts/dev.sh --gpu -- python3 scripts/env_check.py --capture
+   ```
+
+판정: 컨테이너가 5% 넘게 느린 항목이 없으면 "손해 없음" → 본체도 도커 유지 확정. 넘으면 "측정 직후 상태"(전원·온도·클럭) 확인 후 다시 측정, 그래도 같으면 이슈 #57 에서 "본체만 도커 없이" 재검토.
+다 쓰면 정리: `rm -rf .cache/gpu-bench`
+
+| 막힘 | 해결 |
+|---|---|
+| 3번에서 `could not select device driver ... [[gpu]]` | `sudo nvidia-ctk runtime configure --runtime=docker && sudo systemctl restart docker` 후 3번 |
+| 3번에서 "떠 있는 컨테이너는 GPU 없이 시작됐습니다" | 열려 있는 `./scripts/dev.sh` 터미널을 모두 `exit` 후 3번 |
+| 4번에서 "호스트 Python 이 3.10 이 아님" | 본체 OS 가 22.04 인지 확인 (`lsb_release -a`) |
+| 4번에서 "PyTorch 가 GPU 를 찾지 못했습니다" | 드라이버 570 미만일 가능성 → 1번 |
 
 ## 참고 (작업하며 알게 된 것)
 - `.gitignore` 의 `install/` 이 colcon 출력뿐 아니라 모든 `install/` 폴더를 무시함 → 설치 스크립트는 `scripts/installer/` 에 둠
