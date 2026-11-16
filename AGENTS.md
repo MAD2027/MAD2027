@@ -59,7 +59,8 @@ pre-commit run --all-files           # 스타일만
 - `git commit --no-verify`, `git push --force` 를 쓰지 않는다. pre-commit 이 파일을 고치면 `git add` 후 다시 커밋.
 - PR 은 `.github/pull_request_template.md` 를 채운다: `Closes #이슈`, 테스트 방법, 다른 팀 영향, **사용한 AI 도구 체크**.
 - PR 하나는 이슈 하나, 변경 400줄 이하를 목표로 한다. 크면 나눈다.
-- 최종 책임과 리뷰는 사람이 한다. AI 는 PR 을 승인하거나 병합하지 않는다.
+- 최종 책임과 리뷰는 사람이 한다. AI 는 PR 을 승인하거나 병합하지 않는다 (승인이 필수가 아니어도 마찬가지).
+- `src/interfaces/` 변경 PR 은 인터페이스 변경 요청 이슈에서 전원 동의가 확인된 뒤에만 병합 대상이 된다. 다른 팀 폴더를 바꾼 PR 은 그 팀의 확인이 필요하다고 PR 에 적는다.
 
 ## 코드 스타일
 - Python: ruff (`pyproject.toml`, 줄 길이 120), 타입 힌트 권장. C/C++/Arduino: clang-format (Google, 120).

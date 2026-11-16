@@ -92,9 +92,9 @@ def handle(org: str, team_slug: str) -> str:
 
 
 def team_code_owners(cfg: dict, team: dict) -> list[str]:
-    """팀 폴더 승인권자: 팀장 개인 + code_owners 팀. 둘 다 없으면 팀 전체(github_team).
+    """팀 폴더 리뷰 자동 요청 대상(승인은 필수 아님): 팀장 개인 + code_owners 팀. 둘 다 없으면 팀 전체(github_team).
 
-    code_owners 의 "team" 은 그 팀 자신의 github_team (같은 팀 사람끼리 서로 승인).
+    code_owners 의 "team" 은 그 팀 자신의 github_team (같은 팀 사람끼리 서로 리뷰).
     """
     org = cfg["org"]
     owners = [f"@{team['lead']}"] if team["lead"] else []

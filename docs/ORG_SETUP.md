@@ -21,7 +21,7 @@
 4. "My personal account" 선택 → 생성
 
 > **public / private 선택 기준**
-> GitHub Free 플랜의 Organization 은 **public 저장소에서만** 브랜치 보호 규칙과 "코드 오너 리뷰 필수"가 동작합니다.
+> GitHub Free 플랜의 Organization 은 **public 저장소에서만** 브랜치 보호 규칙(`CI 통과` 필수 등)이 동작합니다.
 > 코드를 비공개로 해야 한다면, 학생이면 [GitHub Education](https://education.github.com/) 혜택으로 Team 플랜을 무료로 신청하거나 Team 플랜을 결제해야 합니다.
 > public 저장소는 Actions 실행 시간도 무제한 무료입니다.
 
@@ -43,14 +43,14 @@
 
 | 팀 slug | 구성원 | 역할 |
 |---|---|---|
-| `maintainers` | 전체 팀장 + 각 팀장 | 공용 영역(통합 런치, CI, 설정) 승인, 팀 폴더 대리 승인 |
-| `leads` | 각 팀장 4명 | 인터페이스(메시지)·융합 승인, 팀 폴더 대리 승인(팀원 없는 팀·부재 시) |
+| `maintainers` | 전체 팀장 + 각 팀장 | 공용 영역(통합 런치, CI, 설정) 리뷰 요청 대상 |
+| `leads` | 각 팀장 4명 | 인터페이스(메시지)·융합 리뷰 요청 대상, 인터페이스 변경 전원 동의 |
 | `team-camera` | 카메라 팀장 + 팀원 | `src/camera/` push 권한, `@멘션` |
 | `team-gps` | GPS 팀장 + 팀원 | `src/gps/` push 권한, `@멘션` |
 | `team-lidar` | 라이다 팀장 + 팀원 | `src/lidar/` push 권한, `@멘션` |
 | `team-control` | 제어 팀장 + 팀원 | `src/control/`, `firmware/` push 권한, `@멘션` |
 
-팀 폴더 승인은 **같은 팀 사람끼리** 합니다 (팀원 PR=팀장, 팀장 PR=팀원). 그래서 `.github/CODEOWNERS` 는 `/src/camera/ @MAD2027/team-camera @MAD2027/leads @MAD2027/maintainers` 처럼 그 팀(`team-*`)과 대리 승인용 `leads`·`maintainers` 를 함께 적습니다 (`config/teams.yml` 의 `code_owners: [team, leads, maintainers]`). 팀장 GitHub 아이디를 각 팀 `lead:` 에 적고 `python3 scripts/teams.py sync` 하면 팀장에게도 직접 리뷰 요청이 갑니다. 팀장은 `leads`·`maintainers`·자기 `team-*` 에, 팀원은 자기 `team-*` 에 넣습니다. **모든 팀에 저장소 Write 권한**이 있어야 CODEOWNERS 가 그 팀의 승인을 인정합니다 (아래).
+PR 승인은 필수가 아닙니다 (이슈 #51). `.github/CODEOWNERS` 는 **리뷰를 자동으로 요청할 사람**만 정합니다. `/src/camera/ @MAD2027/team-camera @MAD2027/leads @MAD2027/maintainers` 처럼 그 팀(`team-*`)과 `leads`·`maintainers` 를 함께 적습니다 (`config/teams.yml` 의 `code_owners: [team, leads, maintainers]`). 팀장 GitHub 아이디를 각 팀 `lead:` 에 적고 `python3 scripts/teams.py sync` 하면 팀장에게도 직접 리뷰 요청이 갑니다. 팀장은 `leads`·`maintainers`·자기 `team-*` 에, 팀원은 자기 `team-*` 에 넣습니다. **모든 팀에 저장소 Write 권한**을 줍니다 (아래). Write 가 없으면 push 도, 리뷰 요청도 되지 않습니다.
 
 각 팀 페이지 → **Repositories → Add repository** → 저장소 선택 → 권한 **Write**
 (`maintainers` 팀은 **Maintain**)
@@ -82,11 +82,12 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - 체크할 항목:
   - ✅ **Restrict deletions**
   - ✅ **Block force pushes**
-  - ✅ **Require a pull request before merging**
-    - Required approvals: **1**
-    - ✅ Dismiss stale pull request approvals when new commits are pushed
-    - ✅ **Require review from Code Owners** ← 팀 폴더는 같은 팀 사람(팀원 없거나 부재 시 다른 팀장, 급하면 전체 팀장)이, 인터페이스·융합은 팀장(`leads`)이, 공용 파일은 maintainers 가 승인
-    - ✅ Require conversation resolution before merging
+  - ✅ **Require a pull request before merging** (main 직접 push 금지)
+    - Required approvals: **0** ← 승인은 필수가 아님 (이슈 #51). 리뷰는 CODEOWNERS 로 자동 요청만 됨
+    - ⬜ Dismiss stale pull request approvals when new commits are pushed: **끄기**
+    - ⬜ Require review from Code Owners: **끄기**
+    - ⬜ Require approval of the most recent reviewable push: **끄기**
+    - ✅ Require conversation resolution before merging (리뷰 댓글을 반영하거나 답하고 병합)
     - Allowed merge methods: **Squash** (PR 하나 = main 커밋 하나 → 기록이 깔끔)
   - ✅ **Require status checks to pass**
     - **Add checks** → `CI 통과` 추가 (CI 를 한 번 이상 실행한 뒤에 목록에 나타납니다)
@@ -147,7 +148,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - [ ] `config/teams.yml` 의 `org` 가 실제 이름이고, CODEOWNERS 에 오류 표시가 없다 (GitHub 에서 CODEOWNERS 파일을 열었을 때 빨간 경고가 없어야 함)
 - [ ] 라벨 동기화 워크플로를 실행했다
 - [ ] main 에 직접 push 하면 거부된다
-- [ ] 테스트 PR 을 올렸을 때 팀 라벨이 붙고, 코드 오너 리뷰가 요청되고, `CI 통과` 체크가 돈다
+- [ ] 테스트 PR 을 올렸을 때 팀 라벨이 붙고, 코드 오너 리뷰가 요청되고, `CI 통과` 체크가 돈다. 승인 없이 `CI 통과` 만으로 병합 버튼이 활성화된다
 - [ ] 새 이슈가 프로젝트 보드에 자동으로 나타난다
 - [ ] `ghcr.io/mad2027/mad-dev:humble` 이미지가 있고 Public 이다
 - [ ] 본체 노트북에서 `--capture` 한 `config/target_env.yml` 이 main 에 있다
