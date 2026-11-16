@@ -49,6 +49,7 @@ STATIC_LABELS = [
     ("priority:low", "0e8a16", "우선순위 낮음"),
     ("area:shared", "fbca04", "공용 영역(인터페이스/통합 런치) 변경"),
     ("ci:nightly-failure", "b60205", "야간 통합 빌드 실패"),
+    ("ci:backup-failure", "b60205", "자동 백업 실패"),
     ("report:weekly", "bfdadc", "주간 진행 리포트"),
     ("report:monthly", "bfdadc", "월간 진행 리포트"),
     ("ai:claude", "d4c5f9", "Claude Code 로 작성/수정"),
