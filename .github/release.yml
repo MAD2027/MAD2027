@@ -3,14 +3,14 @@ changelog:
   categories:
     - title: 🔌 인터페이스 변경
       labels: [type:interface]
+    - title: 제어 팀
+      labels: [team:control]
     - title: 카메라 팀
       labels: [team:camera]
     - title: GPS 팀
       labels: [team:gps]
     - title: 라이다 팀
       labels: [team:lidar]
-    - title: 제어 팀
-      labels: [team:control]
     - title: 융합 팀
       labels: [team:fusion]
     - title: 기타

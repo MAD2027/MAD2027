@@ -40,6 +40,7 @@
 **People → Invite member** 로 모든 팀원을 초대합니다 (역할: Member).
 
 **Teams → New team** 으로 아래 팀을 만듭니다. 팀 slug 는 `config/teams.yml` 의 `github_team` 과 같아야 합니다.
+제어팀(자율주행팀)은 조직상 센서 3팀의 상위이지만 GitHub 에서는 **Parent team 을 지정하지 않습니다** (모든 팀을 최상위로). 중첩하면 `team-control` 리뷰 요청·@멘션이 센서 팀원에게도 갑니다 ([TEAM_GUIDE 조직과 역할](TEAM_GUIDE.md#조직과-역할)).
 
 | 팀 slug | 구성원 | 역할 |
 |---|---|---|
@@ -48,7 +49,7 @@
 | `team-camera` | 카메라 팀장 + 팀원 | `src/camera/` push 권한, `@멘션` |
 | `team-gps` | GPS 팀장 + 팀원 | `src/gps/` push 권한, `@멘션` |
 | `team-lidar` | 라이다 팀장 + 팀원 | `src/lidar/` push 권한, `@멘션` |
-| `team-control` | 제어 팀장 + 팀원 | `src/control/`, `firmware/` push 권한, `@멘션` |
+| `team-control` | 제어 팀장(= 자율주행팀 팀장) + 팀원 | `src/control/`, `firmware/` push 권한, `@멘션` |
 
 PR 승인은 필수가 아닙니다 (이슈 #51). `.github/CODEOWNERS` 는 **리뷰를 자동으로 요청할 사람**만 정합니다. `/src/camera/ @MAD2027/team-camera @MAD2027/leads @MAD2027/maintainers` 처럼 그 팀(`team-*`)과 `leads`·`maintainers` 를 함께 적습니다 (`config/teams.yml` 의 `code_owners: [team, leads, maintainers]`). 팀장 GitHub 아이디를 각 팀 `lead:` 에 적고 `python3 scripts/teams.py sync` 하면 팀장에게도 직접 리뷰 요청이 갑니다. 팀장은 `leads`·`maintainers`·자기 `team-*` 에, 팀원은 자기 `team-*` 에 넣습니다. **모든 팀에 저장소 Write 권한**을 줍니다 (아래). Write 가 없으면 push 도, 리뷰 요청도 되지 않습니다.
 

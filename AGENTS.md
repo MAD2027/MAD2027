@@ -12,11 +12,11 @@
 <!-- BEGIN TEAMS (scripts/teams.py sync 가 생성) -->
 | 팀 id | 이름 | 담당 폴더 | 설명 |
 |---|---|---|---|
+| `control` | 제어 | `src/control/`, `firmware/` | 판단/제어 및 아두이노 펌웨어 - 자율주행팀 (센서 3팀 상위, 팀장 = 자율주행팀 팀장) |
 | `camera` | 카메라 | `src/camera/` | 카메라 기반 인지 (차선/객체/신호 인식) |
 | `gps` | GPS | `src/gps/` | GPS/IMU 기반 측위 및 경로 |
 | `lidar` | 라이다 | `src/lidar/` | 라이다 기반 인지 (장애물/거리) |
-| `control` | 제어 | `src/control/`, `firmware/` | 판단/제어 및 아두이노 펌웨어 |
-| `fusion` | 융합 | `src/fusion/` | 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당 |
+| `fusion` | 융합 | `src/fusion/` | 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당, 주 담당 제어 팀장 |
 <!-- END TEAMS -->
 
 공용 영역: `src/interfaces/`(팀 간 메시지 계약), `src/bringup/`(통합 런치), `config/`, `.github/`, `.devcontainer/`

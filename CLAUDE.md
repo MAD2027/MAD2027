@@ -7,7 +7,7 @@
 
 > 공동 개발 시스템 정비가 끝날 때까지 Claude 로 작업하므로 여기에 둡니다. 다음 세션은 **작업 전에 이 목록을 읽고, 항목을 끝내면 같은 PR 에서 이 구역을 갱신**합니다. 정비가 끝나면 이 구역을 지웁니다.
 > 이 구역은 `scripts/teams.py sync` 가 지우지 않습니다 (위 표시줄 아래).
-> 마지막 갱신: 2026-11-16 (이슈 #53, #52 병합·H2 완료). 진행 상황의 기준은 GitHub 이슈·PR 이고, 이 파일은 요약입니다.
+> 마지막 갱신: 2026-11-16 (이슈 #59 조직 개편: 제어팀 상위, 자율주행팀 팀장 = 제어 팀장). 진행 상황의 기준은 GitHub 이슈·PR 이고, 이 파일은 요약입니다.
 
 ## 진행 규칙
 - 이 목록의 항목은 **사용자(전체 팀장)에게 확인받은 뒤** 진행합니다. 결정(D) 이 필요한 항목은 결정 전에 시작하지 않습니다.
@@ -15,14 +15,14 @@
 - 끝난 항목은 아래 "완료" 로 옮기고 PR 번호를 적습니다.
 
 ## 현재 상태 (2026-11-16)
-- **조직(D3 결정: 8~9명)**: 전체 팀장 1 + 팀장 4(그중 1명 자율주행팀 팀장 겸임) + 팀원 3~4. **팀당 팀장 1 + 팀원 0~1** → 팀원 없이 팀장 혼자인 팀이 생길 수 있음. README·TEAM_GUIDE·ORG_SETUP 인원 숫자는 C1(#47)에서 반영.
+- **조직(D3 결정: 8~9명)**: 전체 팀장 1 + 팀장 4 + 팀원 3~4. **제어팀 = 자율주행팀이 센서 3팀 상위, 자율주행팀 팀장 = 제어 팀장** (이슈 #59, 문서에서만 상위 표현, GitHub 팀 중첩 안 함, 융합 주 담당 = 제어 팀장, 센서 PR 리뷰 요청에 `team-control` 추가 안 함). **팀당 팀장 1 + 팀원 0~1** → 팀원 없이 팀장 혼자인 팀이 생길 수 있음. README·TEAM_GUIDE·ORG_SETUP 인원 숫자는 C1(#47)에서 반영.
 - **GitHub 팀 구성(실제)**: `leads`·`maintainers` = Anjabom, S1Ron1124 / `team-camera`·`team-gps`·`team-lidar`·`team-control` = Anjabom 만. 다른 팀장·팀원은 아직 미배치 (H1).
 - **승인 체계 (D4 결정 A, 이슈 #51)**: PR 승인은 **필수 아님**. 병합 조건 = PR + `CI 통과` + 대화 Resolve, Squash. 작성자가 병합 가능
   - `.github/CODEOWNERS` 는 유지하되 **리뷰 자동 요청용**만 (팀 폴더 = `team-*`·`leads`·`maintainers`, `src/fusion/`·`src/interfaces/` = `leads`, 그 밖 = `maintainers`)
   - 리뷰 권장: 같은 팀끼리(팀원 PR=팀장, 팀장 PR=팀원). 다른 팀 폴더를 바꾼 PR 은 그 팀 확인 후 병합
   - `src/interfaces/` 는 승인 대신 **인터페이스 변경 요청 이슈에서 전원 동의** 확인 후 병합 (확인 책임 = 병합하는 사람)
   - GitHub Ruleset `main 보호` 도 같은 설정으로 변경 완료 (H2, 2026-11-16). 이슈 #53 PR 이 승인 없이 병합되면 동작 확인 끝
-- **열린 PR**: 이슈 #53 PR(이 목록 갱신). #52·#48·#46 병합됨. 11-12 기준으로 열려 있던 #43·#44·#40·#27·Dependabot #2~#5 도 모두 병합됨
+- **열린 PR**: 이슈 #59 PR(조직 개편). #54(#53)·#52·#48·#46 병합됨. #54 가 리뷰 0건으로 병합되어 승인 필수 없음(H2) 동작 확인 끝. 11-12 기준으로 열려 있던 #43·#44·#40·#27·Dependabot #2~#5 도 모두 병합됨
   - #40(`setup-host.sh`)은 H4 실제 실행 검증 **전에** 병합됨 → H4 는 여전히 필요, 문제가 나오면 후속 PR 로 수정
 - 센서 팀 폴더(`src/camera|gps|lidar|control/`)는 아직 문서만 있고 패키지 없음. `fusion_inputs.yaml`·`static_tf.yaml` 은 빈 목록 (팀 개발 시작 후 채움, 이 목록 범위 밖)
 - `config/target_env.yml`(본체 노트북 기준 사양)이 비어 있음 (H3)
@@ -31,7 +31,7 @@
 | # | 결정 | 선택지 | 막힌 작업 |
 |---|---|---|---|
 | D1 | ~~팀장이 쓴 코드의 승인 방식~~ **결정: B** (2026-11-12) | 팀 폴더는 같은 팀 사람끼리 서로 승인(팀원 PR=팀장, 팀장 PR=팀원), 다른 팀장(`leads`)·전체 팀장(`maintainers`)은 대리. 팀원이 없는 팀의 팀장 PR 은 대리 승인 | C1 |
-| D2 | 팀장 4명의 GitHub 아이디, 자율주행팀 팀장이 누구인지 | - | C2, H1 |
+| D2 | 팀장 4명의 GitHub 아이디 (자율주행팀 팀장 = 제어 팀장으로 확정, 이슈 #59) | - | C2, H1 |
 | D3 | ~~조직 인원~~ **결정: 8~9명** (2026-11-12) | 팀원 수가 정해지면 TEAM_GUIDE 역할 표에 반영 | C1, C3 |
 | D4 | ~~PR 필수 승인 유지 여부~~ **결정: A** (2026-11-16) | 필수 승인만 제거, PR·`CI 통과` 필수와 CODEOWNERS(리뷰 요청용) 유지. 인터페이스는 이슈 전원 동의 | 이슈 #51 |
 
@@ -42,7 +42,7 @@
 | ~~H2~~ | ~~Ruleset `main 보호` 승인 0, Code Owners·Dismiss stale 끄기~~ **완료** (2026-11-16). 승인 없이 병합되는지는 이슈 #53 PR 로 확인 | ORG_SETUP 5장 |
 | H3 | 본체 노트북에서 `python3 scripts/env_check.py --capture` → PR | `.wslconfig`·설치 스크립트의 사양 기준 |
 | H4 | `scripts/installer/setup-host.sh`(#40, 이미 병합) 실제 실행 검증: WSL(이미 수동 설치한 PC 에서 "건너뜀" 동작), 가능하면 새 Ubuntu 22.04 | 결과(멈춘 화면)를 AI 에 전달 → 수정 |
-| H5 | PR 리뷰·병합. 남은 것: 이슈 #53 PR (승인 없이 병합해 H2 확인). 병합된 #27 은 컨테이너에서 `ros2 launch mad_bringup system.launch.py use_sim_time:=true` 확인 권장 | 승인은 필수 아님 (#52). `CI 통과` 후 작성자가 병합 가능 |
+| H5 | PR 리뷰·병합. 남은 것: 이슈 #59 PR (조직 개편). 병합된 #27 은 컨테이너에서 `ros2 launch mad_bringup system.launch.py use_sim_time:=true` 확인 권장 | 승인은 필수 아님 (#52). `CI 통과` 후 작성자가 병합 가능 |
 | H6 | 병합된 #6(actions/labeler 5→7) 이 다음 팀 PR 에서 `team:xxx` 라벨을 붙이는지 확인 | 안 붙으면 #6 되돌리기, `teams.py gen_labeler` 확인 |
 | H7 | 팀원별 ROS_DOMAIN_ID 배정·공유 | 팀당 10개 범위 (TEAM_GUIDE) |
 
@@ -50,7 +50,7 @@
 | # | 할 일 | 산출물 | 선행 |
 |---|---|---|---|
 | C2 | (선택) 4팀과 융합(`fusion`)의 `lead:` 에 팀장 아이디 → `python3 scripts/teams.py sync` → CODEOWNERS 갱신. 승인 필수가 아니라 팀장 개인에게 리뷰 요청이 가게 하는 용도 | 작은 PR | D2, H1 |
-| C3 | 교육 자료 웹 페이지 갱신: "MAD 개발 교본"(https://claude.ai/artifact/UyaDFHe2VnQzd9SEUjRjZi), "MAD 팀 구조 점검"(https://claude.ai/artifact/U3URe3BEjjpQeaWvmCaGky) 을 9명 기준·**승인 필수 없음(#51)** 체계로, 병합된 PR 의 "리뷰 중" 표시 정리 | 페이지 갱신 (같은 주소, 소유자 계정에서) | C1 병합 |
+| C3 | 교육 자료 웹 페이지 갱신: "MAD 개발 교본"(https://claude.ai/artifact/UyaDFHe2VnQzd9SEUjRjZi), "MAD 팀 구조 점검"(https://claude.ai/artifact/U3URe3BEjjpQeaWvmCaGky) 을 9명 기준·**승인 필수 없음(#51)**·**제어팀 상위 조직도(#59)** 체계로, 병합된 PR 의 "리뷰 중" 표시 정리 | 페이지 갱신 (같은 주소, 소유자 계정에서) | C1 병합 |
 | C5 | 윈도우 설치 파일: `scripts/installer/windows/MAD-설치.cmd` + `setup-windows.ps1`(가상화 검사, WSL·Ubuntu-22.04, winget 으로 VS Code·Git·확장, `.wslconfig`, 재부팅 후 이어하기, WSL 에서 함께 든 `setup-host.sh` 실행) + **서명 없는** `MAD-Setup.exe`(Inno Setup, 릴리스 워크플로가 windows 러너에서 만들어 Releases 첨부). 문서에 SmartScreen "추가 정보 → 실행" 안내 | PR 1개 | H4 |
 | C6 | (선택) Copilot·Gemini 용 연결 파일을 `teams.py sync` 가 생성(`AGENTS.md` 를 따르라는 짧은 파일), AI 규칙 숙지 점검 시나리오 문서 | PR 1개 | 다른 AI 도구 사용자가 생기면 |
 
@@ -86,4 +86,5 @@
 | ~~C4: #27 용 이슈 연결~~ → #27 이 병합되어 불필요 | - |
 | 할 일 목록을 루트 CLAUDE.md 메모 구역에 기록 (이슈 #45) | #46 |
 | C1: 같은 팀끼리 서로 승인(D1=B) - `code_owners` 에 `team`, 4팀 `[team, leads, maintainers]`, CONTRIBUTING·TEAM_GUIDE·ORG_SETUP·README 8~9명 기준 (이슈 #47) | #48 |
+| 할 일 목록 갱신, H2 승인 없이 병합 확인 (이슈 #53) | #54 |
 | 필수 승인 제거(D4=A): CI 통과만으로 병합, CODEOWNERS 는 리뷰 요청용, 인터페이스는 이슈 전원 동의 (이슈 #51). Ruleset 변경(H2) 완료 | #52 |

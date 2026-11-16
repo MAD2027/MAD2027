@@ -3,6 +3,16 @@
   "org": "MAD2027",
   "teams": [
     {
+      "id": "control",
+      "name": "제어",
+      "label": "team:control",
+      "handle": "@MAD2027/team-control",
+      "paths": [
+        "src/control/",
+        "firmware/"
+      ]
+    },
+    {
       "id": "camera",
       "name": "카메라",
       "label": "team:camera",
@@ -27,16 +37,6 @@
       "handle": "@MAD2027/team-lidar",
       "paths": [
         "src/lidar/"
-      ]
-    },
-    {
-      "id": "control",
-      "name": "제어",
-      "label": "team:control",
-      "handle": "@MAD2027/team-control",
-      "paths": [
-        "src/control/",
-        "firmware/"
       ]
     },
     {

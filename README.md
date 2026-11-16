@@ -1,7 +1,7 @@
 # MAD 자율주행
 
 ROS2 Humble (Ubuntu 22.04) + Python/C++ + Arduino 기반 자율주행 프로젝트입니다.
-카메라 · GPS · 라이다 · 제어 4개 팀(팀당 1~2명, 전체 8~9명)이 **하나의 저장소**에서 함께 개발합니다.
+제어(자율주행팀) 아래 카메라 · GPS · 라이다 센서 3팀, 모두 4개 팀(팀당 1~2명, 전체 8~9명)이 **하나의 저장소**에서 함께 개발합니다. 자율주행팀 팀장이 제어 팀장을 맡습니다 ([조직과 역할](docs/TEAM_GUIDE.md#조직과-역할)).
 
 ## 이 저장소의 팀 개발 시스템
 
@@ -44,7 +44,7 @@ git push -u origin HEAD                         # 6. PR 생성 (본문에 Closes
 
 ```
 src/camera|gps|lidar|control/   팀별 ROS2 패키지
-src/fusion/                     센서 융합·판단 (mad_fusion, 팀 리더 공동)
+src/fusion/                     센서 융합·판단 (mad_fusion, 팀 리더 공동, 주 담당 제어 팀장)
 src/interfaces/                 팀 간 공용 메시지 (mad_interfaces)
 src/bringup/                    통합 런치 + 노드 상태 감시 (mad_bringup)
 firmware/arduino/               아두이노 스케치
