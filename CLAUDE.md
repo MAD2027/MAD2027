@@ -49,7 +49,7 @@
 | H5 | PR 리뷰·병합. 남은 것: 이슈 #64 PR (자동 백업). 병합된 #27 은 컨테이너에서 `ros2 launch mad_bringup system.launch.py use_sim_time:=true` 확인 권장 | 승인은 필수 아님 (#52). `CI 통과` 후 작성자가 병합 가능 |
 | H6 | 병합된 #6(actions/labeler 5→7) 이 다음 팀 PR 에서 `team:xxx` 라벨을 붙이는지 확인 | 안 붙으면 #6 되돌리기, `teams.py gen_labeler` 확인 |
 | H7 | 사람별 ROS_DOMAIN_ID 정하기·공유 | 팀당 10개 범위, 팀 안에서 겹치지 않게 (TEAM_GUIDE) |
-| H8 | 이슈 #64 PR 병합 후 **Actions → 자동 백업 → Run workflow** (weekly) 로 한 번 실행: Releases 에 `backup-weekly-...` 프리릴리스, 노션 `작업 기록` 에 `주간 백업` 행이 생기는지 확인. 다음 `버전 릴리스` 의 릴리스 노트가 백업 태그가 아닌 이전 `v*` 기준인지도 확인 | docs/BACKUP.md |
+| H9 | 이슈 #64 PR 병합 후 **Actions → 자동 백업 → Run workflow** (weekly) 로 한 번 실행: Releases 에 `backup-weekly-...` 프리릴리스, 노션 `작업 기록` 에 `주간 백업` 행이 생기는지 확인. 다음 `버전 릴리스` 의 릴리스 노트가 백업 태그가 아닌 이전 `v*` 기준인지도 확인 | docs/BACKUP.md |
 
 ## C. AI(Claude 등) 가 할 일
 | # | 할 일 | 산출물 | 선행 |
@@ -63,7 +63,7 @@
 3. H3, H7
 4. ~~C3~~ (완료, #62 로 페이지 다시 갱신). ~~C2~~ 는 #62 로 불필요
 5. H4 → C5
-6. H6 (다음 팀 PR 에서), H8 (#64 병합 후)
+6. H6 (다음 팀 PR 에서), H9 (#64 병합 후)
 7. C6 (필요할 때)
 
 ## 참고 (작업하며 알게 된 것)
@@ -95,4 +95,4 @@
 | 조직 개편: 제어팀 상위 (이슈 #59) → #62 로 되돌림 | #60 |
 | C3: 교육 자료 갱신 - "MAD 개발 교본"(https://claude.ai/artifact/UyaDFHe2VnQzd9SEUjRjZi) 초보자 기준 재작성(컴퓨터 기초, 저장소 구조, 이슈→병합 따라하기, 용어 사전), "MAD 팀 구조 점검"(https://claude.ai/artifact/U3URe3BEjjpQeaWvmCaGky) 승인 없는 병합 체계로 (이슈 #55). 페이지는 저장소 밖(소유자 계정)이라 다음 갱신도 같은 주소로 | #61 |
 | 팀장 개념 제거: 조직도·역할 표·`lead:`·`leads` 삭제, 팀 체계만, 융합·인터페이스 = 4팀 공동, `maintainers` = 저장소 관리자. 교육 페이지 2개도 갱신 (이슈 #62) | #63 |
-| 주간·월간 자동 백업: `backup.yml`(bundle + GitHub 기록 JSON → 프리릴리스, 보존 5/12, 실패 시 `ci:backup-failure` 이슈), 노션 `작업 기록` DB 에 백업 행, `docs/BACKUP.md` 복원 방법 (이슈 #64, D5·D6) | 이슈 #64 PR (H8 확인 필요) |
+| 주간·월간 자동 백업: `backup.yml`(bundle + GitHub 기록 JSON → 프리릴리스, 보존 5/12, 실패 시 `ci:backup-failure` 이슈), 노션 `작업 기록` DB 에 백업 행, `docs/BACKUP.md` 복원 방법 (이슈 #64, D5·D6) | 이슈 #64 PR (H9 확인 필요) |
