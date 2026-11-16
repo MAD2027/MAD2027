@@ -4,7 +4,9 @@
 #
 #   ./scripts/dev.sh                 컨테이너 셸 (이미 떠 있으면 그 안으로 들어감)
 #   ./scripts/dev.sh --hw            + 센서/아두이노(USB) 접근
-#   ./scripts/dev.sh --match-target  + CPU/RAM 을 본체 노트북 사양으로 제한
+#   ./scripts/dev.sh --match-target  + CPU/RAM 을 본체 노트북 사양으로 제한 (본체에서는 쓰지 않는다)
+#   ./scripts/dev.sh --no-gpu        NVIDIA GPU 를 연결하지 않음 (기본: 쓸 수 있으면 자동 연결)
+#   ./scripts/dev.sh --gpu           GPU 를 꼭 연결 (못 하면 오류)
 #   ./scripts/dev.sh --pull          최신 공용 이미지 받기
 #   ./scripts/dev.sh -- <명령>       명령만 실행 (예: -- ros2 launch mad_bringup system.launch.py)
 #   ./scripts/dev.sh -- claude       AI 도구를 컨테이너 안에서 실행 (처음 한 번: -- ./scripts/ai_tools.sh install)
@@ -31,6 +33,7 @@ if [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "$SSH_AUTH_SOCK" ]; then
   args+=(-v "$SSH_AUTH_SOCK:/tmp/ssh-agent.sock" -e SSH_AUTH_SOCK=/tmp/ssh-agent.sock)
 fi
 cmd=(bash)
+gpu=auto
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -41,12 +44,30 @@ while [ $# -gt 0 ]; do
       if [ -z "$cores" ]; then echo "config/target_env.yml 이 아직 기록되지 않았습니다."; exit 1; fi
       args+=(--cpus "$cores" --memory "${ram}g")
       echo "본체 사양으로 제한: CPU ${cores}코어, RAM ${ram}GB" ;;
+    --gpu) gpu=on ;;
+    --no-gpu) gpu=off ;;
     --pull) docker pull "$image"; exit 0 ;;
     --) shift; cmd=("$@"); break ;;
-    *) sed -n '2,13p' "$0"; exit 1 ;;
+    *) sed -n '2,15p' "$0"; exit 1 ;;
   esac
   shift
 done
+
+# NVIDIA GPU (본체 노트북 카메라 추론 등, 이슈 #57). 호스트 드라이버와 NVIDIA Container Toolkit 이 있으면 연결한다.
+# 컨테이너는 VM 이 아니라서 호스트 드라이버·GPU 를 그대로 쓴다 → 연산 성능 손해 없음 (scripts/gpu_bench.sh 로 측정)
+# NVIDIA_DRIVER_CAPABILITIES=all: 기본값(compute,utility)에는 OpenGL 이 없어 rviz2 가 CPU 로 그리게 된다
+if [ "$gpu" != off ]; then
+  if command -v nvidia-smi >/dev/null && nvidia-smi -L >/dev/null 2>&1 \
+     && command -v nvidia-container-runtime-hook >/dev/null; then
+    args+=(--gpus all -e NVIDIA_DRIVER_CAPABILITIES=all)
+  elif [ "$gpu" = on ]; then
+    echo "❌ GPU 를 연결할 수 없습니다. 호스트에서 nvidia-smi 가 동작하는지 확인하고,"
+    echo "   ./scripts/installer/setup-host.sh 로 NVIDIA Container Toolkit 을 설치하세요 (docs/DEV_ENV.md 본체 노트북)."
+    exit 1
+  elif command -v nvidia-smi >/dev/null; then
+    echo "⚠️  NVIDIA GPU 가 있지만 컨테이너에 연결할 수 없어 GPU 없이 시작합니다 (./scripts/installer/setup-host.sh 로 설정)." >&2
+  fi
+fi
 
 # VS Code 와 달리 setup.sh 가 실행되지 않으므로, git 훅(커밋 스타일·메시지, push 규칙)이 없으면 먼저 설치한다
 # shellcheck disable=SC2016  # 컨테이너 안의 bash 가 펼칠 문자열
@@ -54,6 +75,10 @@ hook='for h in pre-commit commit-msg pre-push; do [ -f .git/hooks/$h ] || { pre-
 cmd=(bash -c "$hook" _ "${cmd[@]}")
 
 if docker ps --format '{{.Names}}' | grep -qx "$name"; then
+  # 이미 떠 있는 컨테이너에 들어감 → GPU 연결 여부는 처음 띄울 때 정해진다
+  if [ "$gpu" = on ] && [ "$(docker inspect -f '{{len .HostConfig.DeviceRequests}}' "$name" 2>/dev/null)" = 0 ]; then
+    echo "❌ 떠 있는 컨테이너 '$name' 은 GPU 없이 시작됐습니다. 그 컨테이너를 닫고(exit) 다시 실행하세요."; exit 1
+  fi
   exec docker exec "${tty[@]}" -w /ws "$name" "${cmd[@]}"
 fi
 if command -v xhost >/dev/null && [ -n "${DISPLAY:-}" ]; then

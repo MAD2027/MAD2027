@@ -11,6 +11,8 @@
     "ROS_DOMAIN_ID": "${localEnv:ROS_DOMAIN_ID:0}",
     // rviz2 등 GUI (우분투 X11 / 윈도우 WSLg)
     "DISPLAY": "${localEnv:DISPLAY}",
+    // GPU 가 연결됐을 때 OpenGL 까지 쓰도록 (기본값 compute,utility 만이면 rviz2 가 CPU 로 그림). GPU 가 없으면 무시됨
+    "NVIDIA_DRIVER_CAPABILITIES": "all",
     // AI 코딩 도구: 설치할 도구 목록(none 이면 설치 안 함)과, 구독 로그인 대신 API 키를 쓸 때의 키
     "MAD_AI_TOOLS": "${localEnv:MAD_AI_TOOLS:claude codex grok}",
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
@@ -22,6 +24,9 @@
     "source=mad-ai-bin,target=/home/ubuntu/.local,type=volume",
     "source=mad-ai-config,target=/home/ubuntu/.ai-config,type=volume"
   ],
+  // NVIDIA GPU 가 있고 NVIDIA Container Toolkit 이 설치된 PC(본체 노트북)는 자동으로 GPU 연결, 없으면 그냥 시작 (이슈 #57)
+  // 확인: 컨테이너 터미널에서 nvidia-smi. 설정: ./scripts/installer/setup-host.sh (docs/DEV_ENV.md 본체 노트북)
+  "hostRequirements": { "gpu": "optional" },
   "runArgs": [
     "--network=host",
     "--ipc=host",

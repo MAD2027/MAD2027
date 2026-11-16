@@ -212,6 +212,27 @@ git fetch --tags && git switch --detach v0.3.0
 ```
 이어서 [TARGET_ENV.md - 본체 노트북을 러너로 등록](TARGET_ENV.md#본체-노트북을-러너로-등록-관리자-1회) 을 진행하면 팀원들이 원격으로 실기 테스트를 돌릴 수 있습니다.
 
+### 본체 NVIDIA GPU 를 컨테이너에서 쓰기 (카메라 YOLO 등)
+본체도 **도커(공용 컨테이너)를 그대로 쓰고 GPU 만 연결**합니다. 컨테이너는 가상머신이 아니라 본체 커널 위의 일반 프로세스이고,
+NVIDIA Container Toolkit 은 본체의 드라이버와 GPU 장치(`/dev/nvidia*`)를 컨테이너에 그대로 연결할 뿐이라 **GPU 연산 손해가 없습니다**.
+정말 그런지는 본체에서 직접 측정해 확인합니다 ([TARGET_ENV.md - GPU 성능 측정](TARGET_ENV.md#gpu-성능-측정-도커-vs-직접-실행)).
+
+```bash
+# [호스트] 1. NVIDIA 드라이버 (이미 nvidia-smi 가 되면 건너뜀). Secure Boot 화면이 나오면 MOK 등록 후 재부팅
+nvidia-smi || { sudo ubuntu-drivers install && sudo reboot; }
+
+# [호스트] 2. NVIDIA Container Toolkit 설치 + docker 연결 (setup-host.sh 가 GPU 를 감지하면 자동)
+./scripts/installer/setup-host.sh --team vehicle --no-vscode
+
+# [호스트] 3. 확인: 컨테이너 안에서 GPU 가 보이면 성공
+./scripts/dev.sh --gpu -- nvidia-smi
+```
+- `./scripts/dev.sh` 는 GPU 를 쓸 수 있으면 **자동으로** `--gpus all` 을 붙입니다 (`--no-gpu` 로 끄기). VS Code 는 `devcontainer.json` 의 `hostRequirements.gpu: optional` 로 같은 동작을 합니다. GPU 가 없는 팀원 PC 는 아무것도 바뀌지 않습니다.
+- 본체 실기 테스트(`vehicle-test`)도 `dev.sh` 로 실행되므로 GPU 를 그대로 씁니다.
+- 본체에서는 `--match-target`(CPU/RAM 제한)을 쓰지 않습니다.
+- **PyTorch 버전 주의**: ROS Humble 은 Python 3.10 입니다. PyTorch 2.15 부터는 Python 3.11 이상만 지원하므로 쓸 수 없습니다. 또 torch 의 CUDA 버전이 드라이버를 결정합니다 (torch 2.9 = CUDA 12.8 → 드라이버 570 이상, 2.12 이상 = CUDA 13 → 580 이상).
+- **GPU 를 쓰는 노드 규칙**: `device` 파라미터(`cuda`/`cpu`)를 두고, GPU 가 없으면 CPU 로 동작하게 합니다 (GPU 없는 팀원 PC 와 CI 에서도 실행되도록). TensorRT 엔진(`.engine`)은 만든 GPU 에서만 동작하므로 **본체에서 만들고**, 모델·엔진 파일은 `/ws` 아래(호스트와 공유)에 둡니다. 컨테이너는 `--rm` 이라 그 밖에 저장한 파일은 사라집니다.
+
 ---
 
 ## AI 코딩 도구 (Claude Code · Codex · Grok)
@@ -237,7 +258,8 @@ claude        # 또는 codex, grok
 | `./scripts/check.sh [팀]` | 스타일 + 빌드 + 테스트 + 아두이노 컴파일 (CI 와 동일) |
 | `./scripts/new_package.sh <팀> <이름> [python\|cpp]` | ROS2 패키지 생성 (저장소 스타일 ruff/clang-format 과 충돌하는 ament 린터는 자동 제외) |
 | `python3 scripts/env_check.py` | 본체 노트북 기준 환경과 비교 |
-| `./scripts/dev.sh [--hw] [--match-target]` | VS Code 없이 공용 컨테이너 사용 |
+| `./scripts/dev.sh [--hw] [--match-target] [--no-gpu]` | VS Code 없이 공용 컨테이너 사용 (NVIDIA GPU 는 자동 연결) |
+| `./scripts/gpu_bench.sh` | (본체, 호스트에서) GPU 성능 측정: 직접 실행 vs 컨테이너 |
 | `python3 scripts/teams.py sync` | 팀 설정 변경 후 생성 파일 갱신 |
 
 ## ROS 배포판을 바꿀 때 (관리자)
@@ -263,5 +285,9 @@ claude        # 또는 codex, grok
 | 컨테이너 안 `git commit` 에서 "Please tell me who you are" | 호스트에서 `git config --global user.name/user.email` 을 설정하고 컨테이너를 다시 엽니다 (`exit` 후 `./scripts/dev.sh`) |
 | 커밋이 pre-commit 에 막힘 | 자동 수정된 파일을 `git add` 후 다시 커밋합니다 |
 | main 에 커밋했다며 막힘 | `git switch -c <팀>/<이슈>-<설명>` 으로 브랜치를 만들고 커밋합니다 |
+| 컨테이너에서 `nvidia-smi: command not found` 또는 GPU 가 안 보임 | 호스트에서 `nvidia-smi` 가 되는지 먼저 확인합니다. 되면 `./scripts/installer/setup-host.sh` 로 NVIDIA Container Toolkit 을 설치하고, 떠 있던 컨테이너를 모두 닫은 뒤(`exit`, VS Code 는 Rebuild Container) 다시 엽니다 |
+| `could not select device driver "" with capabilities: [[gpu]]` | NVIDIA Container Toolkit 이 docker 에 연결되지 않았습니다. `sudo nvidia-ctk runtime configure --runtime=docker && sudo systemctl restart docker` |
+| PyTorch 에서 `torch.cuda.is_available()` 가 `False` | 컨테이너 안 `nvidia-smi` 가 되는지 확인하고, 되면 드라이버 버전이 torch 의 CUDA 버전을 지원하는지 확인합니다 (위 "PyTorch 버전 주의") |
+| 컨테이너 안 rviz2 가 느림 (`glxinfo -B` 에 `llvmpipe`) | GPU 가 연결되지 않았거나 `NVIDIA_DRIVER_CAPABILITIES` 에 graphics 가 없습니다. `dev.sh` 는 `all` 로 설정하므로 컨테이너를 다시 엽니다 |
 | `/dev/ttyACM0` 권한 오류 | devcontainer.json 의 `--privileged` 주석을 해제하고 Rebuild 합니다. 윈도우는 `usbipd attach` 를 확인합니다 |
 | 윈도우에서 빌드가 너무 느림 | 저장소가 `/mnt/c` 아래에 있지 않은지 확인합니다 (`pwd`). `~` 아래로 다시 clone 합니다 |

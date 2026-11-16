@@ -1,0 +1,8 @@
+# scripts/gpu_bench.sh 측정 전용 (공용 이미지에는 들어가지 않음, .cache/gpu-bench/py 에 설치).
+# 호스트와 컨테이너가 이 디렉터리를 같이 쓰므로 양쪽 버전이 1비트도 다르지 않다.
+# - Python 3.10(ROS Humble) 에서 쓸 수 있어야 함: torch 2.15 부터는 Python 3.11 이상만 지원
+# - torch 2.9.x = CUDA 12.8 → NVIDIA 드라이버 570 이상 필요 (2.12 이상은 CUDA 13 → 드라이버 580 이상)
+# 카메라 팀이 실제로 쓸 버전은 requirements.txt 에 따로 정한다 (이슈 #57 후속).
+torch==2.9.1
+torchvision==0.24.1
+ultralytics==8.4.215

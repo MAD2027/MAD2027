@@ -45,6 +45,7 @@
 | H5 | PR 리뷰·병합. 남은 것: 이슈 #53 PR (승인 없이 병합해 H2 확인). 병합된 #27 은 컨테이너에서 `ros2 launch mad_bringup system.launch.py use_sim_time:=true` 확인 권장 | 승인은 필수 아님 (#52). `CI 통과` 후 작성자가 병합 가능 |
 | H6 | 병합된 #6(actions/labeler 5→7) 이 다음 팀 PR 에서 `team:xxx` 라벨을 붙이는지 확인 | 안 붙으면 #6 되돌리기, `teams.py gen_labeler` 확인 |
 | H7 | 팀원별 ROS_DOMAIN_ID 배정·공유 | 팀당 10개 범위 (TEAM_GUIDE) |
+| H8 | (C7 PR 후, 본체) `setup-host.sh` → `./scripts/dev.sh --gpu -- nvidia-smi` → `./scripts/gpu_bench.sh` → `report.md` 를 이슈 #57 에 댓글. H3(`--capture`)도 GPU 연결 후 같이 | 충전기 연결, 다른 프로그램 종료. H4 와 함께 하면 한 번에 끝남 |
 
 ## C. AI(Claude 등) 가 할 일
 | # | 할 일 | 산출물 | 선행 |
@@ -52,6 +53,7 @@
 | C2 | (선택) 4팀과 융합(`fusion`)의 `lead:` 에 팀장 아이디 → `python3 scripts/teams.py sync` → CODEOWNERS 갱신. 승인 필수가 아니라 팀장 개인에게 리뷰 요청이 가게 하는 용도 | 작은 PR | D2, H1 |
 | C3 | 교육 자료 웹 페이지 갱신: "MAD 개발 교본"(https://claude.ai/artifact/UyaDFHe2VnQzd9SEUjRjZi), "MAD 팀 구조 점검"(https://claude.ai/artifact/U3URe3BEjjpQeaWvmCaGky) 을 9명 기준·**승인 필수 없음(#51)** 체계로, 병합된 PR 의 "리뷰 중" 표시 정리 | 페이지 갱신 (같은 주소, 소유자 계정에서) | C1 병합 |
 | C5 | 윈도우 설치 파일: `scripts/installer/windows/MAD-설치.cmd` + `setup-windows.ps1`(가상화 검사, WSL·Ubuntu-22.04, winget 으로 VS Code·Git·확장, `.wslconfig`, 재부팅 후 이어하기, WSL 에서 함께 든 `setup-host.sh` 실행) + **서명 없는** `MAD-Setup.exe`(Inno Setup, 릴리스 워크플로가 windows 러너에서 만들어 Releases 첨부). 문서에 SmartScreen "추가 정보 → 실행" 안내 | PR 1개 | H4 |
+| C7 | **도커 GPU 사용 (이슈 #57)**: 본체도 도커 유지 + NVIDIA Container Toolkit(`setup-host.sh`), `dev.sh` GPU 자동 연결(`--gpu`/`--no-gpu`), devcontainer `hostRequirements.gpu: optional`, `env_check` 드라이버·GPU 접근 기록, 측정 스크립트 `gpu_bench.sh`(호스트 vs 컨테이너, 같은 torch 파일). 후속: 카메라 팀이 `requirements.txt` 에 ultralytics/torch 버전 고정 (Python 3.10 → torch ≤2.14, 이미지 크기·OpenCV 충돌 검토) | PR 진행 중 → H8 측정 결과로 판단 | - |
 | C6 | (선택) Copilot·Gemini 용 연결 파일을 `teams.py sync` 가 생성(`AGENTS.md` 를 따르라는 짧은 파일), AI 규칙 숙지 점검 시나리오 문서 | PR 1개 | 다른 AI 도구 사용자가 생기면 |
 
 ## 권장 순서
@@ -59,7 +61,7 @@
 2. ~~#46 병합 → C1 → #52 병합 → H2~~ (완료), H1
 3. H3, H7
 4. C3 (C2 는 선택)
-5. H4 → C5
+5. H4 → C5. C7(GPU) PR 병합 → H8 측정 (H4 와 같이)
 6. H6 (다음 팀 PR 에서)
 7. C6 (필요할 때)
 
