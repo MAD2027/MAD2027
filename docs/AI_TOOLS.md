@@ -25,7 +25,7 @@
 - **규칙을 바꿀 때는 `AGENTS.md` 만 고칩니다.** `CLAUDE.md` 와 팀 표는 `python3 scripts/teams.py sync` 가 관리합니다 (CI 가 동기화 검사).
 - 도구 전용 설정(`.claude/`, `~/.codex/config.toml`, `.grok/rules/`)에 팀 규칙을 넣지 않습니다. 그 도구를 안 쓰는 사람에게는 적용되지 않기 때문입니다. 개인 취향 설정은 괜찮습니다 (`CLAUDE.local.md`, `AGENTS.override.md` 등은 `.gitignore` 처리됨).
 
-### 팀 규칙 채우기 (팀 리더)
+### 팀 규칙 채우기 (각 팀)
 `src/<팀>/AGENTS.md` 의 "팀 규칙" 에 AI 가 자주 틀리는 것을 적습니다. 예:
 ```markdown
 ## 팀 규칙

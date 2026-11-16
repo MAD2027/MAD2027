@@ -110,7 +110,7 @@ jobs:
               await github.rest.issues.createComment({
                 ...context.repo, issue_number: pr.number,
                 body: `${sharedMarker}\n### 🔌 공용 영역 변경 알림\n변경 경로: ${touched.map(p => '`' + p + '`').join(', ')}\n\n` +
-                      `${cfg.teams.map(t => t.handle).join(' ')}\n각 팀은 자기 코드에 영향이 있는지 확인 후 리뷰에 의견을 남겨 주세요.`,
+                      `${cfg.teams.filter(t => t.handle).map(t => t.handle).join(' ')}\n각 팀은 자기 코드에 영향이 있는지 확인 후 리뷰에 의견을 남겨 주세요.`,
               });
             }
 
