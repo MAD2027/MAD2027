@@ -216,4 +216,4 @@ async function toNotion({ data, token, databaseId, reportUrl }) {
   return page.url;
 }
 
-module.exports = { periodFor, collect, toMarkdown, toNotionBlocks, toNotion };
+module.exports = { periodFor, collect, toMarkdown, toNotionBlocks, toNotion, notion, text, block };

@@ -25,6 +25,7 @@ ROS2 Humble (Ubuntu 22.04) + Python/C++ + Arduino 기반 자율주행 프로젝�
 | **모든 팀원** | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) - 이슈 → 브랜치 → PR 흐름 |
 | **본체 노트북 담당** | [docs/TARGET_ENV.md](docs/TARGET_ENV.md) - 기준 환경, 실기 테스트 |
 | **노션 기록** | [docs/NOTION.md](docs/NOTION.md) |
+| **자동 백업·복원** | [docs/BACKUP.md](docs/BACKUP.md) - 주간·월간 백업(Releases + 노션), 복원 방법 |
 | **AI 도구 사용자** | [docs/AI_TOOLS.md](docs/AI_TOOLS.md) - Claude Code · Codex · Grok 공용 규칙(`AGENTS.md`), 컨테이너 안 실행 |
 | **팀 리더** | [docs/TEAM_GUIDE.md](docs/TEAM_GUIDE.md) - 인터페이스 변경, 팀 구성 변경, 릴리스 |
 | **팀 리더 (융합 공동 담당)** | [docs/INTEGRATION.md](docs/INTEGRATION.md) - 센서 팀 출력 융합과 최종 통합 절차 |

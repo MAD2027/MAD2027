@@ -142,6 +142,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 
 - 본체 노트북 기준 환경 기록과 실기 테스트 러너 등록: [TARGET_ENV.md](TARGET_ENV.md)
 - 주간·월간 작업 기록을 노션에 연동 (`NOTION_TOKEN`, `NOTION_DATABASE_ID`): [NOTION.md](NOTION.md)
+- 주간·월간 자동 백업(Releases 프리릴리스, 같은 노션 데이터베이스에 기록). 추가 설정 없음, 병합 후 Actions 에서 한 번 수동 실행해 확인: [BACKUP.md](BACKUP.md)
 
 ## 9. 확인 체크리스트
 
