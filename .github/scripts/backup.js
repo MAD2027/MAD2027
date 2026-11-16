@@ -25,7 +25,8 @@ async function exportData({ github, context, dir }) {
   const repo = context.repo;
   const all = (fn, extra = {}) => github.paginate(fn, { ...repo, per_page: 100, ...extra });
   const sets = {
-    issues: await all(github.rest.issues.listForRepo, { state: 'all' }), // PR 도 포함 (pull_request 필드)
+    // 이슈 API 가 PR 을 섞어 줄 때가 있어 빼 둔다 (PR 은 pulls.json)
+    issues: (await all(github.rest.issues.listForRepo, { state: 'all' })).filter(i => !i.pull_request),
     pulls: await all(github.rest.pulls.list, { state: 'all' }),
     issue_comments: await all(github.rest.issues.listCommentsForRepo),
     review_comments: await all(github.rest.pulls.listReviewCommentsForRepo),
@@ -50,7 +51,7 @@ function releaseBody({ plan, stats, files }) {
     '|---|---|',
     `| 브랜치 | ${stats.branches} |`,
     `| 태그 | ${stats.tags} |`,
-    `| 이슈 (PR 제외) | ${stats.issues - stats.pulls} |`,
+    `| 이슈 | ${stats.issues} |`,
     `| PR | ${stats.pulls} |`,
     `| 댓글 (이슈·PR + 리뷰) | ${stats.issue_comments + stats.review_comments} |`,
     '',
@@ -131,7 +132,7 @@ async function toNotion({ plan, stats, release, token, databaseId }) {
     block('paragraph', [text('GitHub 백업 릴리스: '), text(plan.tag, release.url)]),
     block('heading_2', [text('백업 내용')]),
     item(`브랜치 ${stats.branches}개, 태그 ${stats.tags}개`),
-    item(`이슈 ${stats.issues - stats.pulls}개, PR ${stats.pulls}개, 댓글 ${stats.issue_comments + stats.review_comments}개`),
+    item(`이슈 ${stats.issues}개, PR ${stats.pulls}개, 댓글 ${stats.issue_comments + stats.review_comments}개`),
     item(`라벨 ${stats.labels}개, 마일스톤 ${stats.milestones}개, 릴리스 ${stats.releases}개`),
     block('heading_2', [text('파일')]),
     ...release.files.map(f => item(`${f.name} (${(f.size / 1048576).toFixed(2)} MB)`)),
