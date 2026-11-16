@@ -3,16 +3,6 @@
   "org": "MAD2027",
   "teams": [
     {
-      "id": "control",
-      "name": "제어",
-      "label": "team:control",
-      "handle": "@MAD2027/team-control",
-      "paths": [
-        "src/control/",
-        "firmware/"
-      ]
-    },
-    {
       "id": "camera",
       "name": "카메라",
       "label": "team:camera",
@@ -40,10 +30,20 @@
       ]
     },
     {
+      "id": "control",
+      "name": "제어",
+      "label": "team:control",
+      "handle": "@MAD2027/team-control",
+      "paths": [
+        "src/control/",
+        "firmware/"
+      ]
+    },
+    {
       "id": "fusion",
       "name": "융합",
       "label": "team:fusion",
-      "handle": "@MAD2027/leads",
+      "handle": null,
       "paths": [
         "src/fusion/"
       ]
@@ -53,7 +53,10 @@
     {
       "path": "src/interfaces/",
       "owners": [
-        "@MAD2027/leads"
+        "@MAD2027/team-camera",
+        "@MAD2027/team-gps",
+        "@MAD2027/team-lidar",
+        "@MAD2027/team-control"
       ],
       "notify_all_teams": true
     },

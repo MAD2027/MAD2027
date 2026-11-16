@@ -23,7 +23,7 @@ from mad_bringup.static_tf import load_static_transforms
 
 # (패키지 이름, launch 파일 이름)
 TEAM_LAUNCHES = [
-    ("mad_fusion", "fusion.launch.py"),  # 센서 융합 (팀 리더 공동)
+    ("mad_fusion", "fusion.launch.py"),  # 센서 융합 (4팀 공동)
     # ("camera_lane", "camera.launch.py"),
     # ("gps_localization", "gps.launch.py"),
     # ("lidar_obstacle", "lidar.launch.py"),

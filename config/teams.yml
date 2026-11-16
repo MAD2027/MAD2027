@@ -11,38 +11,18 @@
 # GitHub Organization 이름 (예: mad2027). docs/ORG_SETUP.md 참고
 org: MAD2027
 
-# 공용 영역(인터페이스, 통합 런치, CI 설정 등)을 책임지는 GitHub 팀 slug
-maintainers_team: maintainers   # 각 팀 리더 + 프로젝트 관리자
-leads_team: leads               # 각 팀 리더 (인터페이스 변경 전원 동의)
+# 저장소 관리자 GitHub 팀 slug: Organization 초대·팀 배치·보호 규칙을 맡고, 공용 파일 리뷰 요청을 받는다.
+# 팀장 개념은 없다 (이슈 #62). 모든 팀은 나란히 있고, 리뷰 요청은 같은 팀끼리 간다.
+maintainers_team: maintainers
 
 teams:
-  # 조직 (이슈 #59): 제어팀 = 자율주행팀. 센서 3팀(카메라·GPS·라이다)의 상위 팀이고, 자율주행팀 팀장이 제어 팀장을 맡는다.
-  # 상위 관계는 문서(docs/TEAM_GUIDE.md "조직과 역할")에서만 표현한다. GitHub 팀은 중첩하지 않는다
-  # (중첩하면 team-control 에 가는 리뷰 요청·@멘션이 센서 팀원 전원에게 간다).
-  - id: control                 # 브랜치 접두사/라벨/폴더에 쓰이는 영문 ID (소문자, 하이픈)
-    name: 제어                   # 사람이 읽는 이름
-    description: 판단/제어 및 아두이노 펌웨어 - 자율주행팀 (센서 3팀 상위, 팀장 = 자율주행팀 팀장)
-    github_team: team-control   # Organization 안의 GitHub 팀 slug (팀원 push 권한, @멘션)
-    # 팀 폴더 PR 의 리뷰 자동 요청 대상 (.github/CODEOWNERS). 승인은 필수가 아님 (이슈 #51):
-    #   lead        = 팀장 GitHub 아이디(@ 없이). 리뷰 요청이 팀장에게 직접 간다. 비워 두면 code_owners 만.
-    #   code_owners = 리뷰 요청을 받는 팀 (team / leads / maintainers).
-    #                 team = 이 팀의 github_team: 같은 팀끼리 서로 리뷰 (팀원 PR=팀장, 팀장 PR=팀원).
-    #                 leads·maintainers = 팀원이 없거나 자리를 비울 때 다른 팀장·전체 팀장이 리뷰.
-    #   (둘 다 생략하면 github_team 에 리뷰 요청)
-    lead: ""                    # TODO: 제어 팀장(= 자율주행팀 팀장) GitHub 아이디
-    code_owners: [team, leads, maintainers]
-    color: "d93f0b"
-    paths:
-      - src/control/
-      - firmware/
-
-  # 센서 팀: 제어팀(자율주행팀) 아래. 출력은 토픽으로 융합(src/fusion)에 보낸다.
-  - id: camera
-    name: 카메라
+  - id: camera                  # 브랜치 접두사/라벨/폴더에 쓰이는 영문 ID (소문자, 하이픈)
+    name: 카메라                 # 사람이 읽는 이름
     description: 카메라 기반 인지 (차선/객체/신호 인식)
-    github_team: team-camera    # Organization 안의 GitHub 팀 slug (팀원 push 권한, @멘션)
-    lead: ""                    # TODO: 카메라 팀장 GitHub 아이디
-    code_owners: [team, leads, maintainers]
+    github_team: team-camera    # Organization 안의 GitHub 팀 slug (push 권한, @멘션, 리뷰 요청)
+    # code_owners: 팀 폴더 PR 의 리뷰 자동 요청 대상 (.github/CODEOWNERS). 승인은 필수가 아님 (이슈 #51).
+    #   team = 이 팀의 github_team, all_teams = 모든 팀, maintainers = 저장소 관리자
+    #   생략하면 github_team 이 있으면 [team], 없으면 [all_teams]
     color: "1d76db"
     paths:
       - src/camera/
@@ -51,8 +31,6 @@ teams:
     name: GPS
     description: GPS/IMU 기반 측위 및 경로
     github_team: team-gps
-    lead: ""                    # TODO: GPS 팀장 GitHub 아이디
-    code_owners: [team, leads, maintainers]
     color: "0e8a16"
     paths:
       - src/gps/
@@ -61,25 +39,33 @@ teams:
     name: 라이다
     description: 라이다 기반 인지 (장애물/거리)
     github_team: team-lidar
-    lead: ""                    # TODO: 라이다 팀장 GitHub 아이디
-    code_owners: [team, leads, maintainers]
     color: "5319e7"
     paths:
       - src/lidar/
 
-  # 센서 융합 + 판단: 각 센서 팀의 출력을 받아 하나로 합친다. 팀 리더들이 함께 맡고, 주 담당은 제어 팀장(자율주행팀 팀장).
+  - id: control
+    name: 제어
+    description: 판단/제어 및 아두이노 펌웨어
+    github_team: team-control
+    color: "d93f0b"
+    paths:
+      - src/control/
+      - firmware/
+
+  # 센서 융합 + 판단: 각 센서 팀의 출력을 받아 하나로 합친다. 전용 GitHub 팀 없이 4팀이 함께 맡는다.
   - id: fusion
     name: 융합
-    description: 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당, 주 담당 제어 팀장
-    github_team: leads
+    description: 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 4팀 공동
+    github_team: ""             # 전용 팀 없음 → 리뷰 요청은 모든 팀(all_teams)
+    code_owners: [all_teams]
     color: "fbca04"
     paths:
       - src/fusion/
 
 # 여러 팀이 함께 쓰는 공용 영역. 변경 시 모든 팀에 알림이 간다.
 shared:
-  - path: src/interfaces/       # 팀 간 메시지 정의 (계약)
-    owners: [leads]
+  - path: src/interfaces/       # 팀 간 메시지 정의 (계약). 변경은 영향 받는 팀마다 한 명 이상 동의
+    owners: [all_teams]
     notify_all_teams: true
   - path: src/bringup/          # 전체 시스템 통합 런치
     owners: [maintainers]

@@ -4,7 +4,7 @@
   <name>mad_fusion</name>
   <version>0.1.0</version>
   <description>센서 융합과 판단: 카메라/GPS/라이다 팀의 출력을 받아 하나로 합친다 (팀 리더 공동 담당)</description>
-  <maintainer email="leads@example.com">leads</maintainer>
+  <maintainer email="maintainers@example.com">maintainers</maintainer>
   <license>Apache-2.0</license>
 
   <exec_depend>rclpy</exec_depend>

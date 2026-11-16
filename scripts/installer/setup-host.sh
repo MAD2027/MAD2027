@@ -132,7 +132,7 @@ while :; do
 done
 read -r lo hi <<< "${RANGE[$TEAM]}"
 while :; do
-  [ -n "$DOMAIN" ] || DOMAIN=$(ask "ROS_DOMAIN_ID (${TEAM}: ${lo}~${hi}, 팀장에게 배정받은 번호)" "$lo")
+  [ -n "$DOMAIN" ] || DOMAIN=$(ask "ROS_DOMAIN_ID (${TEAM}: ${lo}~${hi}, 팀 안에서 정한 번호)" "$lo")
   if [[ "$DOMAIN" =~ ^[0-9]+$ ]] && [ "$DOMAIN" -ge "$lo" ] && [ "$DOMAIN" -le "$hi" ]; then break; fi
   if ! $TTY || $DRY; then die "ROS_DOMAIN_ID ${DOMAIN} 은 ${TEAM} 범위(${lo}~${hi}) 밖입니다."; fi
   warn "${lo}~${hi} 사이 숫자를 입력하세요."; DOMAIN=""
