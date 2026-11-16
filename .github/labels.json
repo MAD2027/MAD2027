@@ -1,5 +1,10 @@
 [
   {
+    "name": "team:control",
+    "color": "d93f0b",
+    "description": "제어 팀 - 판단/제어 및 아두이노 펌웨어 - 자율주행팀 (센서 3팀 상위, 팀장 = 자율주행팀 팀장)"
+  },
+  {
     "name": "team:camera",
     "color": "1d76db",
     "description": "카메라 팀 - 카메라 기반 인지 (차선/객체/신호 인식)"
@@ -15,14 +20,9 @@
     "description": "라이다 팀 - 라이다 기반 인지 (장애물/거리)"
   },
   {
-    "name": "team:control",
-    "color": "d93f0b",
-    "description": "제어 팀 - 판단/제어 및 아두이노 펌웨어"
-  },
-  {
     "name": "team:fusion",
     "color": "fbca04",
-    "description": "융합 팀 - 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당"
+    "description": "융합 팀 - 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당, 주 담당 제어 팀장"
   },
   {
     "name": "type:feature",
