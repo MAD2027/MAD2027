@@ -111,5 +111,5 @@ ros2 launch mad_fusion fusion.launch.py use_sim_time:=true   # /clock 시각 사
 |---|---|
 | 센서 팀 (카메라·GPS·라이다) | 자기 폴더 개발, 출력 토픽/메시지 결정, `header.stamp`/`frame_id` 규칙 준수, 통합 런치 등록 |
 | 제어 팀 | 융합 결과를 받아 경로 추종·제어, 아두이노 펌웨어 |
-| 팀 리더 공동 (`leads`) | `src/interfaces` 약속 승인, `fusion_inputs.yaml` 관리, 융합 로직, static TF, 최종 통합·릴리스 |
+| 팀 리더 공동 (`leads`) | `src/interfaces` 약속 변경 전원 동의, `fusion_inputs.yaml` 관리, 융합 로직, static TF, 최종 통합·릴리스 |
 | 본체 노트북 담당 | 데이터 녹화, 실기 테스트 러너 유지 |
