@@ -10,7 +10,7 @@
 | Organization | ✅ `MAD2027` 생성됨 | - |
 | 저장소 | ✅ `MAD2027/MAD2027` (public) 로 이전됨 | 옛 주소로 받은 팀원은 `git remote set-url origin https://github.com/MAD2027/MAD2027.git` |
 | `config/teams.yml` 의 `org` | ✅ `MAD2027` 로 설정 (PR #1 에 포함) | - |
-| 팀 (`maintainers`, `leads`, `team-*`) | 없음 | 팀원 초대와 팀 생성 (3단계) |
+| 팀 (`maintainers`, `team-*`) | 없음 | 팀원 초대와 팀 생성 (3단계) |
 | 브랜치 보호 | 없음 | 규칙 설정 (5단계) |
 
 ## 1. Organization 만들기 (무료)
@@ -40,18 +40,17 @@
 **People → Invite member** 로 모든 팀원을 초대합니다 (역할: Member).
 
 **Teams → New team** 으로 아래 팀을 만듭니다. 팀 slug 는 `config/teams.yml` 의 `github_team` 과 같아야 합니다.
-제어팀(자율주행팀)은 조직상 센서 3팀의 상위이지만 GitHub 에서는 **Parent team 을 지정하지 않습니다** (모든 팀을 최상위로). 중첩하면 `team-control` 리뷰 요청·@멘션이 센서 팀원에게도 갑니다 ([TEAM_GUIDE 조직과 역할](TEAM_GUIDE.md#조직과-역할)).
+팀장이나 상하 관계는 없으므로 **Parent team 은 지정하지 않습니다** (모든 팀을 최상위로). ([TEAM_GUIDE 팀 체계](TEAM_GUIDE.md#팀-체계))
 
 | 팀 slug | 구성원 | 역할 |
 |---|---|---|
-| `maintainers` | 전체 팀장 + 각 팀장 | 공용 영역(통합 런치, CI, 설정) 리뷰 요청 대상 |
-| `leads` | 각 팀장 4명 | 인터페이스(메시지)·융합 리뷰 요청 대상, 인터페이스 변경 전원 동의 |
-| `team-camera` | 카메라 팀장 + 팀원 | `src/camera/` push 권한, `@멘션` |
-| `team-gps` | GPS 팀장 + 팀원 | `src/gps/` push 권한, `@멘션` |
-| `team-lidar` | 라이다 팀장 + 팀원 | `src/lidar/` push 권한, `@멘션` |
-| `team-control` | 제어 팀장(= 자율주행팀 팀장) + 팀원 | `src/control/`, `firmware/` push 권한, `@멘션` |
+| `maintainers` | 저장소 관리자 (Organization 초대·팀 배치·보호 규칙 담당) | 공용 영역(통합 런치, CI, 설정, 문서) 리뷰 요청 대상 |
+| `team-camera` | 카메라 팀 전원 | `src/camera/` push 권한, `@멘션` |
+| `team-gps` | GPS 팀 전원 | `src/gps/` push 권한, `@멘션` |
+| `team-lidar` | 라이다 팀 전원 | `src/lidar/` push 권한, `@멘션` |
+| `team-control` | 제어 팀 전원 | `src/control/`, `firmware/` push 권한, `@멘션` |
 
-PR 승인은 필수가 아닙니다 (이슈 #51). `.github/CODEOWNERS` 는 **리뷰를 자동으로 요청할 사람**만 정합니다. `/src/camera/ @MAD2027/team-camera @MAD2027/leads @MAD2027/maintainers` 처럼 그 팀(`team-*`)과 `leads`·`maintainers` 를 함께 적습니다 (`config/teams.yml` 의 `code_owners: [team, leads, maintainers]`). 팀장 GitHub 아이디를 각 팀 `lead:` 에 적고 `python3 scripts/teams.py sync` 하면 팀장에게도 직접 리뷰 요청이 갑니다. 팀장은 `leads`·`maintainers`·자기 `team-*` 에, 팀원은 자기 `team-*` 에 넣습니다. **모든 팀에 저장소 Write 권한**을 줍니다 (아래). Write 가 없으면 push 도, 리뷰 요청도 되지 않습니다.
+PR 승인은 필수가 아닙니다 (이슈 #51). `.github/CODEOWNERS` 는 **리뷰를 자동으로 요청할 사람**만 정합니다. 팀 폴더는 `/src/camera/ @MAD2027/team-camera` 처럼 그 팀에만, 융합(`src/fusion/`)·인터페이스(`src/interfaces/`)는 4팀 모두에, 그 밖의 공용 파일은 `maintainers` 에 요청이 갑니다 (`config/teams.yml` 의 `code_owners`). 사람은 자기 `team-*` 에 넣고, 관리 업무를 맡는 사람만 `maintainers` 에도 넣습니다. 예전에 만든 `leads` 팀은 더 이상 쓰지 않으므로 지웁니다 (이슈 #62). **모든 팀에 저장소 Write 권한**을 줍니다 (아래). Write 가 없으면 push 도, 리뷰 요청도 되지 않습니다.
 
 각 팀 페이지 → **Repositories → Add repository** → 저장소 선택 → 권한 **Write**
 (`maintainers` 팀은 **Maintain**)
