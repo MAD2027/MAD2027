@@ -97,6 +97,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - ✅ Allow squash merging (나머지 merge/rebase 는 해제)
 - ✅ Always suggest updating pull request branches
 - ✅ Automatically delete head branches
+- ✅ **Allow auto-merge** (작성자가 PR 에서 Enable auto-merge 를 누르면 `CI 통과` 후 자동 병합, 이슈 #70)
 
 ## 6. 진행 상황 보드 (GitHub Projects)
 
@@ -151,6 +152,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - [ ] main 에 직접 push 하면 거부된다
 - [ ] 테스트 PR 을 올렸을 때 팀 라벨이 붙고, 코드 오너 리뷰가 요청되고, `CI 통과` 체크가 돈다. 승인 없이 `CI 통과` 만으로 병합 버튼이 활성화된다
 - [ ] 새 이슈가 프로젝트 보드에 자동으로 나타난다
+- [ ] PR 화면에 **Enable auto-merge** 버튼이 보이고, Actions → `월 묶음 이슈` 를 수동 실행하면 이번 달 `🧹 자잘한 수정` 이슈가 하나만 열려 있다
 - [ ] `ghcr.io/mad2027/mad-dev:humble` 이미지가 있고 Public 이다
 - [ ] 본체 노트북에서 `--capture` 한 `config/target_env.yml` 이 main 에 있다
 - [ ] 본체 노트북 러너가 Settings → Actions → Runners 에 `Idle` 로 보인다
