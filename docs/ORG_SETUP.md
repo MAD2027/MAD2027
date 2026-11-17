@@ -151,6 +151,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - [ ] 라벨 동기화 워크플로를 실행했다
 - [ ] main 에 직접 push 하면 거부된다
 - [ ] 테스트 PR 을 올렸을 때 팀 라벨이 붙고, 코드 오너 리뷰가 요청되고, `CI 통과` 체크가 돈다. 승인 없이 `CI 통과` 만으로 병합 버튼이 활성화된다
+- [ ] 테스트 PR 의 바뀐 줄에 리뷰 댓글을 달고 Resolve 하지 않으면 병합 버튼이 막힌다 (`All conversations must be resolved`). 막히지 않으면 5장의 Require conversation resolution before merging 이 꺼진 것 (2026-11 실제로 꺼져 있었음)
 - [ ] 새 이슈가 프로젝트 보드에 자동으로 나타난다
 - [ ] PR 화면에 **Enable auto-merge** 버튼이 보이고, Actions → `월 묶음 이슈` 를 수동 실행하면 이번 달 `🧹 자잘한 수정` 이슈가 하나만 열려 있다
 - [ ] `ghcr.io/mad2027/mad-dev:humble` 이미지가 있고 Public 이다
