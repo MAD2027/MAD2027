@@ -20,7 +20,7 @@ SSH_URL="git@github.com:${ORG_REPO}.git"
 # ROS_DOMAIN_ID 범위 (docs/TEAM_GUIDE.md "ROS_DOMAIN_ID 배정" 과 같아야 함)
 declare -A RANGE=([camera]="10 19" [gps]="20 29" [lidar]="30 39" [control]="40 49" [fusion]="50 59" [vehicle]="0 0")
 
-DRY=false; VSCODE=true; DIR="${MAD_DIR:-}"; TEAM="${MAD_TEAM:-}"; DOMAIN="${MAD_DOMAIN_ID:-}"
+DRY=false; VSCODE=true; GPU=false; DIR="${MAD_DIR:-}"; TEAM="${MAD_TEAM:-}"; DOMAIN="${MAD_DOMAIN_ID:-}"
 while [ $# -gt 0 ]; do
   case "$1" in
     --dir) DIR=$2; shift ;;
@@ -105,6 +105,37 @@ fi
 dk() { if id -nG | tr ' ' '\n' | grep -qx docker; then bash -c "$1"; else sg docker -c "$1"; fi; }   # 그룹 재로그인 전에도 docker 사용
 $DRY || dk "docker info >/dev/null" || die "Docker 가 실행되지 않습니다. 'sudo service docker start' 후 다시 실행하세요."
 ok "Docker 준비"
+
+# ── 2-1. NVIDIA GPU → 컨테이너 연결 (GPU 가 있는 PC 만, 이슈 #57) ──
+# 드라이버는 호스트에 하나만 있고, NVIDIA Container Toolkit 이 그 드라이버와 /dev/nvidia* 를 컨테이너에 연결한다.
+# 드라이버 설치는 Secure Boot 서명 등 사람이 확인할 화면이 있어 자동으로 하지 않는다 (docs/DEV_ENV.md 본체 노트북)
+if has nvidia-smi && nvidia-smi -L >/dev/null 2>&1; then
+  say "NVIDIA GPU 를 컨테이너에서 쓰기 (NVIDIA Container Toolkit)"
+  info "$(nvidia-smi --query-gpu=name,driver_version --format=csv,noheader | head -1)"
+  if ! has nvidia-ctk; then
+    # NVIDIA 공식 설치 방법 (docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+    kr=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+    if $DRY; then run "curl ... nvidia.github.io/libnvidia-container gpgkey → $kr, 저장소 등록"; else
+      curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor --yes -o "$kr"
+      curl -fsSL https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+        | sed "s#deb https://#deb [signed-by=$kr] https://#g" \
+        | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list >/dev/null
+    fi
+    run sudo apt-get update -qq; run sudo apt-get install -y nvidia-container-toolkit
+  fi
+  if $DRY; then run "sudo nvidia-ctk runtime configure --runtime=docker && docker 재시작 (설정이 바뀐 경우만)"; else
+    before=$(sudo cat /etc/docker/daemon.json 2>/dev/null || true)
+    sudo nvidia-ctk runtime configure --runtime=docker >/dev/null
+    if [ "$before" != "$(sudo cat /etc/docker/daemon.json 2>/dev/null || true)" ]; then
+      if [ "$(ps -o comm= -p 1 2>/dev/null)" = systemd ]; then sudo systemctl restart docker; else sudo service docker restart; fi
+    fi
+  fi
+  ok "NVIDIA Container Toolkit 준비 (확인은 마지막 단계에서 컨테이너 안 nvidia-smi 로)"
+  GPU=true
+elif { has lspci && lspci | grep -qi 'nvidia'; } || has nvidia-smi; then
+  warn "NVIDIA GPU 가 있지만 드라이버가 동작하지 않습니다. 컨테이너에서 GPU 를 쓰려면:"
+  warn "  sudo ubuntu-drivers install  → 재부팅 (Secure Boot 화면이 나오면 MOK 등록) → 이 스크립트 다시 실행"
+fi
 
 # ── 3. VS Code (우분투 노트북만) ──────────────────────────────
 if $VSCODE; then
@@ -200,6 +231,10 @@ if $DRY; then run "$DIR/scripts/dev.sh --pull"; run "$DIR/scripts/dev.sh -- pyth
 else
   dk "cd '$DIR' && ./scripts/dev.sh --pull" || die "이미지를 받지 못했습니다. 네트워크 확인 후 다시 실행하세요."
   dk "cd '$DIR' && ./scripts/dev.sh -- python3 scripts/env_check.py" || warn "본체 기준 환경과 다른 항목이 있습니다 (위 출력 참고)."
+  if $GPU; then
+    if dk "cd '$DIR' && DEV_NAME=mad-gpu-check ./scripts/dev.sh --gpu -- nvidia-smi -L"; then ok "컨테이너에서 GPU 사용 가능"
+    else warn "컨테이너에서 GPU 가 보이지 않습니다. docs/DEV_ENV.md '문제 해결' 의 GPU 항목을 확인하세요."; fi
+  fi
 fi
 ok "이미지 준비"
 

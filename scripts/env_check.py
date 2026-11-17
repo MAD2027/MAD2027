@@ -52,6 +52,9 @@ def collect() -> dict:
         gpu = "; ".join(
             line.split(": ", 1)[-1] for line in run(["lspci"]).splitlines() if "VGA" in line or "3D" in line
         )
+    # 호스트 커널의 NVIDIA 드라이버(/proc 는 컨테이너에서도 호스트 값이 보임)와, 지금 환경에서 GPU 를 쓸 수 있는지
+    driver = re.search(r"Kernel Module(?: for \S+)?\s+(\d[\d.]+)", read("/proc/driver/nvidia/version"))
+    gpu_access = bool(run(["nvidia-smi", "-L"]))
     os_release = dict(
         line.split("=", 1) for line in read("/etc/os-release").splitlines() if "=" in line and not line.startswith("#")
     )
@@ -74,6 +77,8 @@ def collect() -> dict:
             "cpu_cores": os.cpu_count(),
             "ram_gb": round(int(mem.group(1)) / 1024 / 1024, 1) if mem else None,
             "gpu": gpu or "없음",
+            "nvidia_driver": driver.group(1) if driver else "",
+            "gpu_access": gpu_access,
         },
         "os": {
             "name": os_release.get("PRETTY_NAME", "").strip('"'),
@@ -150,6 +155,19 @@ def check(target: dict, cur: dict) -> int:
             "  ⚠️  이 PC 가 본체보다 느립니다. 여기서 느린 것은 본체에서 괜찮을 수 있으니"
             " 성능 판단은 본체 실기 테스트로."
         )
+    td, cd = th.get("nvidia_driver", ""), ch.get("nvidia_driver", "")
+    if cd:
+        access = "가능" if ch.get("gpu_access") else "불가"
+        print(f"  NVIDIA 드라이버  기준 {td or '-'} / 현재 {cd} (GPU 사용 {access})")
+    if cd and not ch.get("gpu_access"):
+        warnings += 1
+        print(
+            "  ⚠️  이 PC 에 NVIDIA 드라이버가 있지만 지금 환경에서 GPU 를 쓸 수 없습니다."
+            " 컨테이너라면 ./scripts/installer/setup-host.sh 실행 후 컨테이너를 다시 여세요 (docs/DEV_ENV.md)."
+        )
+    if th.get("gpu_access") and cur["hostname"] == target.get("hostname") and td and cd and td != cd:
+        warnings += 1
+        print("  ⚠️  본체의 NVIDIA 드라이버가 기록과 다릅니다. 확인 후 --capture 로 다시 기록하세요.")
     if ("없음" in th["gpu"]) != ("없음" in ch["gpu"]):
         warnings += 1
         print("  ⚠️  GPU 유무가 다릅니다. GPU 를 쓰는 코드는 본체 실기 테스트(vehicle-test)로 확인하세요.")
@@ -176,6 +194,12 @@ def main() -> int:
         )
         TARGET.write_text(header + yaml.safe_dump(current, allow_unicode=True, sort_keys=False), encoding="utf-8")
         print(f"기록 완료: {TARGET.relative_to(ROOT)} → 커밋 후 PR 을 올리세요.")
+        hw = current["hardware"]
+        if hw["nvidia_driver"] and not hw["gpu_access"]:
+            print(
+                "⚠️  NVIDIA GPU 가 연결되지 않은 상태로 기록했습니다."
+                " ./scripts/dev.sh --gpu -- python3 scripts/env_check.py --capture 로 다시 기록하세요."
+            )
         return 0
 
     target = yaml.safe_load(TARGET.read_text(encoding="utf-8")) if TARGET.exists() else None

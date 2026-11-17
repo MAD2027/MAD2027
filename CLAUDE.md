@@ -22,3 +22,4 @@
 - 노션 기록은 진행 리포트와 백업이 `.github/scripts/report.js` 의 `notion`·`text`·`block` 을 함께 씀. 노션 DB 열 이름을 바꾸면 `backup.js` 도 고쳐야 함
 - 클라우드 AI 세션은 Docker/ROS 가 없어 `colcon build`·`check.sh` 를 못 함 → PR "테스트 방법" 에 실행하지 못했다고 적고, CI 결과와 사람의 컨테이너 확인으로 보완
 - 묶음 이슈 제목 접두사 `🧹 자잘한 수정 ` 은 `chore-bundle.yml` 과 `pr-automation.yml` 의 `BUNDLE` 이 같아야 함 (봇이 `Refs` 를 이슈 연결로 인정하는 기준)
+- 사용자가 "GPU 측정 방법", "본체 측정", "H8" 을 물으면 #71 의 "바로 쓰는 절차: 본체 GPU 측정" 구역을 **그대로** 보여 준다 (다시 조사하지 않음, 명령은 하나씩 복사할 수 있게). 근거·측정 항목 설명은 `docs/TARGET_ENV.md` "GPU 성능 측정"

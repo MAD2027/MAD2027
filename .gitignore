@@ -35,3 +35,6 @@ AGENTS.local.md
 .codex/
 .grok/sessions/
 .aider*
+
+# 측정 등 로컬 캐시 (scripts/gpu_bench.sh: 측정용 torch/YOLO 수 GB)
+.cache/
