@@ -263,7 +263,7 @@ claude        # 또는 codex, grok
 | `python3 scripts/teams.py sync` | 팀 설정 변경 후 생성 파일 갱신 |
 
 ## ROS 배포판을 바꿀 때 (관리자)
-다음 값을 함께 바꾸고 PR 을 올립니다. 모든 팀이 영향을 받으므로 리더 회의에서 먼저 합의합니다.
+다음 값을 함께 바꾸고 PR 을 올립니다. 모든 팀이 영향을 받으므로 이슈에서 모든 팀과 먼저 합의합니다.
 - `.devcontainer/Dockerfile`, `.devcontainer/build-local/devcontainer.json` 의 `ROS_DISTRO`
 - `.github/workflows/ci.yml` 의 `ROS_DISTRO` 와 기본 이미지 태그
 - `scripts/teams.py` 의 `dev_image` 태그(`humble`), `.github/workflows/dev-image.yml` 의 태그

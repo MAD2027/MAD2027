@@ -1,7 +1,7 @@
 # 센서 융합과 최종 통합 절차
 
 > 카메라·GPS·라이다 팀이 각자 개발한 코드를 **최종적으로 하나로 융합해 자율주행**하기까지의 과정입니다.
-> 융합은 **각 팀 리더가 함께**(`@MAD2027/leads`) 맡습니다.
+> 융합은 **4팀이 함께** 맡습니다. 전용 담당 팀은 없고, 작업마다 이슈를 열어 맡을 사람을 Assignees 로 정합니다.
 
 ## 핵심: "새 워크스페이스" 를 만들지 않는다
 
@@ -11,7 +11,7 @@
 
 ```
 src/camera  ─▶ 카메라 출력 ─┐
-src/gps     ─▶ GPS 출력 ────┼─▶ src/fusion (융합·판단, 리더 공동) ─▶ 융합 결과 ─▶ src/control ─▶ 아두이노
+src/gps     ─▶ GPS 출력 ────┼─▶ src/fusion (융합·판단, 4팀 공동) ─▶ 융합 결과 ─▶ src/control ─▶ 아두이노
 src/lidar   ─▶ 라이다 출력 ─┘
      ▲ 출력 메시지 형식 = src/interfaces (약속)    ▲ 무엇을 받을지 = fusion_inputs.yaml
 ```
@@ -42,9 +42,9 @@ git push -u origin HEAD            # → PR → 카메라 팀 리뷰 → 병합
 
 | 무엇이 정해지면 | 누가 | 할 일 |
 |---|---|---|
-| 표준 메시지로 충분한 출력 (예: `/gps/fix` `sensor_msgs/NavSatFix`) | 센서 팀 | PR 에 "융합 입력 추가 필요" 라고 적기 → 리더가 `fusion_inputs.yaml` 에 추가 |
-| 새 메시지가 필요한 출력 (예: 차선 정보, 장애물 목록) | 센서 팀 → 리더 | `🔌 인터페이스 변경 요청` 이슈 → `src/interfaces` 에 메시지 정의 → `fusion_inputs.yaml` 에 추가 |
-| 센서 장착 위치 | 리더 | 통합 런치에 static TF 로 정의 (`base_link` → `camera_link` 등) |
+| 표준 메시지로 충분한 출력 (예: `/gps/fix` `sensor_msgs/NavSatFix`) | 센서 팀 | PR 에 "융합 입력 추가 필요" 라고 적기 → 융합 작업자가 `fusion_inputs.yaml` 에 추가 |
+| 새 메시지가 필요한 출력 (예: 차선 정보, 장애물 목록) | 센서 팀 → 융합 작업자 | `🔌 인터페이스 변경 요청` 이슈 → `src/interfaces` 에 메시지 정의 → `fusion_inputs.yaml` 에 추가 |
+| 센서 장착 위치 | 통합 작업자 (이슈로 담당 지정) | 통합 런치에 static TF 로 정의 (`base_link` → `camera_link` 등) |
 
 `src/fusion/mad_fusion/config/fusion_inputs.yaml` 예:
 ```yaml
@@ -72,7 +72,7 @@ ros2 launch mad_bringup system.launch.py
 ```
 녹화 파일(`bags/`)은 git 에 올리지 않고 팀 공유 드라이브에 올립니다.
 
-### 3단계. 융합 개발 (리더 공동, 어느 PC 에서나)
+### 3단계. 융합 개발 (4팀 공동, 어느 PC 에서나)
 ```bash
 # [컨테이너] 터미널 1
 ./scripts/start_task.sh fusion <이슈번호> lane-obstacle-merge
@@ -90,7 +90,7 @@ ros2 launch mad_fusion fusion.launch.py use_sim_time:=true   # /clock 시각 사
 각 팀 기능이 준비되면 통합 런치에 넣고, 본체에서 확인한 뒤 버전을 고정합니다.
 
 1. 각 팀이 자기 패키지에 `launch/<팀>.launch.py` 를 두고, `src/bringup/mad_bringup/launch/system.launch.py` 의 `TEAM_LAUNCHES` 에 한 줄 추가하는 PR 을 올립니다. (`mad_fusion` 은 이미 들어 있음)
-2. 리더가 센서 장착 위치(실측)를 `src/bringup/mad_bringup/config/static_tf.yaml` 에 적습니다. 통합 런치가 항목마다 `static_transform_publisher` 를 띄웁니다 (`base_link` → `camera_link` 등).
+2. 통합 작업자가 센서 장착 위치(실측)를 `src/bringup/mad_bringup/config/static_tf.yaml` 에 적습니다. 통합 런치가 항목마다 `static_transform_publisher` 를 띄웁니다 (`base_link` → `camera_link` 등).
 3. **Actions → 본체 노트북 실기 테스트** 를 main 으로 실행합니다 (전체 빌드 → 테스트 → 통합 실행).
 4. 아래 체크리스트를 확인합니다.
 5. **Actions → 버전 릴리스** 로 `v0.x.0` 을 만듭니다. 이 태그가 "이 날짜에 융합까지 확인된 버전" 입니다. 시연·대회에는 태그 버전을 씁니다.
@@ -111,5 +111,5 @@ ros2 launch mad_fusion fusion.launch.py use_sim_time:=true   # /clock 시각 사
 |---|---|
 | 센서 팀 (카메라·GPS·라이다) | 자기 폴더 개발, 출력 토픽/메시지 결정, `header.stamp`/`frame_id` 규칙 준수, 통합 런치 등록 |
 | 제어 팀 | 융합 결과를 받아 경로 추종·제어, 아두이노 펌웨어 |
-| 팀 리더 공동 (`leads`) | `src/interfaces` 약속 변경 전원 동의, `fusion_inputs.yaml` 관리, 융합 로직, static TF, 최종 통합·릴리스 |
+| 4팀 공동 (이슈로 담당 지정) | `src/interfaces` 약속 변경 시 영향 받는 팀 동의, `fusion_inputs.yaml` 관리, 융합 로직, static TF, 최종 통합·릴리스 |
 | 본체 노트북 담당 | 데이터 녹화, 실기 테스트 러너 유지 |

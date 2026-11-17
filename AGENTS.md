@@ -16,7 +16,7 @@
 | `gps` | GPS | `src/gps/` | GPS/IMU 기반 측위 및 경로 |
 | `lidar` | 라이다 | `src/lidar/` | 라이다 기반 인지 (장애물/거리) |
 | `control` | 제어 | `src/control/`, `firmware/` | 판단/제어 및 아두이노 펌웨어 |
-| `fusion` | 융합 | `src/fusion/` | 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당 |
+| `fusion` | 융합 | `src/fusion/` | 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 4팀 공동 |
 <!-- END TEAMS -->
 
 공용 영역: `src/interfaces/`(팀 간 메시지 계약), `src/bringup/`(통합 런치), `config/`, `.github/`, `.devcontainer/`
@@ -32,7 +32,7 @@
 8. 하드코딩 대신 ROS 파라미터(`declare_parameter`)와 `config/*.yaml` 을 쓴다. 각 노드는 `/system/status` 에 `mad_interfaces/NodeStatus` 하트비트를 1Hz 이상 발행한다.
 9. 테스트를 지우거나 건너뛰게 만들어서 통과시키지 않는다.
 10. **좌표계와 시간 규칙 (융합 전제)**: TF 프레임은 `map` → `odom` → `base_link` → 센서(`camera_link`, `gps_link`, `lidar_link`, `imu_link`), 단위는 SI(m, rad, s). 모든 메시지의 `header.frame_id` 를 채우고 `header.stamp` 는 **센서 측정 시각**을 넣는다(발행 시각 아님). rosbag 재생 시 `use_sim_time:=true`.
-11. 다른 팀에 보내는 출력(토픽/메시지)이 새로 생기거나 바뀌면 `src/fusion/mad_fusion/config/fusion_inputs.yaml` 에 반영이 필요하다고 PR 에 적는다 (융합은 팀 리더 공동 담당).
+11. 다른 팀에 보내는 출력(토픽/메시지)이 새로 생기거나 바뀌면 `src/fusion/mad_fusion/config/fusion_inputs.yaml` 에 반영이 필요하다고 PR 에 적는다 (융합은 4팀 공동 담당).
 
 ## 빌드 / 테스트 (컨테이너 안)
 ```bash
@@ -46,6 +46,7 @@ pre-commit run --all-files           # 스타일만
 
 ## 작업 절차 (모든 AI 도구 공통, 이 순서대로)
 1. **시작 전**: 사용자에게서 **이슈 번호와 팀 id** 를 받는다. 없으면 코드를 고치기 전에 묻는다 (이슈가 없으면 GitHub 에 먼저 만들게 한다). 그 팀 폴더의 `AGENTS.md` 를 읽는다.
+   - **작은 변경**(문서 오타·문구, 깨진 링크, 주석, 동작이 바뀌지 않는 설정)은 새 이슈 대신 그 달의 묶음 이슈 `🧹 자잘한 수정 YYYY-MM` 번호를 쓴다. 브랜치 접두사 `docs`/`chore`, PR 본문은 `Closes` 가 아니라 `Refs #번호`. 코드 동작·`src/interfaces/`·규칙 변경은 작은 변경이 아니다 (docs/CONTRIBUTING.md 4-4).
 2. **위치**: 명령은 공용 컨테이너 안 저장소 루트 `/ws` 에서 실행한다 (`pwd` 확인). `colcon build` 는 반드시 `/ws` 에서.
 3. **브랜치**: 지금 브랜치가 `main` 이면 `./scripts/start_task.sh <팀id> <이슈> <설명>`. 이미 그 이슈의 브랜치면 그대로 쓴다. "커밋하지 않은 변경" 으로 멈추면 사용자에게 알리고 지시를 받는다 (임의로 `stash`/`restore` 하지 않는다).
 4. **수정**: 요청받은 팀 폴더 안만 고친다 (위 3번). 작은 단위로 커밋한다. git 훅이 메시지·브랜치 이름을 막으면 규칙대로 고쳐 다시 한다.
@@ -57,9 +58,10 @@ pre-commit run --all-files           # 스타일만
 - `main` 에 직접 커밋/푸시하지 않는다. 브랜치: `<팀id>/<이슈번호>-<짧은-설명>` (예: `camera/12-lane-offset`). 시작은 `./scripts/start_task.sh <팀id> <이슈> <설명>`.
 - 커밋 메시지: `<팀id>: <무엇을 했는지> (#이슈번호)` - 한국어 가능.
 - `git commit --no-verify`, `git push --force` 를 쓰지 않는다. pre-commit 이 파일을 고치면 `git add` 후 다시 커밋.
-- PR 은 `.github/pull_request_template.md` 를 채운다: `Closes #이슈`, 테스트 방법, 다른 팀 영향, **사용한 AI 도구 체크**.
-- PR 하나는 이슈 하나, 변경 400줄 이하를 목표로 한다. 크면 나눈다.
-- 최종 책임과 리뷰는 사람이 한다. AI 는 PR 을 승인하거나 병합하지 않는다 (승인이 필수가 아니어도 마찬가지).
+- PR 은 `.github/pull_request_template.md` 를 채운다: `Closes #이슈`, 테스트 방법, 다른 팀 영향, **사용한 AI 도구 체크**. 작은 변경은 `.github/PULL_REQUEST_TEMPLATE/small.md` (`Refs #묶음이슈`).
+- PR 하나는 이슈 하나, 변경 400줄 이하를 목표로 한다. 크면 나눈다. 예외: 작은 변경은 여러 PR 이 같은 묶음 이슈를 `Refs` 한다.
+- 작은 PR 을 늘리지 않는다: 같은 영역의 작은 변경은 하나로 묶고, 같은 작업의 PR 이 열려 있으면 새 PR 대신 그 브랜치에 커밋을 더한다.
+- 최종 책임과 리뷰는 사람이 한다. AI 는 PR 을 승인하거나 병합하지 않고, **자동 병합(auto-merge)도 켜지 않는다** (승인이 필수가 아니어도 마찬가지).
 - `src/interfaces/` 변경 PR 은 인터페이스 변경 요청 이슈에서 전원 동의가 확인된 뒤에만 병합 대상이 된다. 다른 팀 폴더를 바꾼 PR 은 그 팀의 확인이 필요하다고 PR 에 적는다.
 
 ## 코드 스타일

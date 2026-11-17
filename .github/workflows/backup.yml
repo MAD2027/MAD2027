@@ -1,0 +1,125 @@
+# 주간/월간 자동 백업 → 이 저장소의 프리릴리스(backup-*) + 노션 "작업 기록" 데이터베이스
+#   저장소 전체(git bundle: 모든 브랜치·태그) + GitHub 기록(이슈·PR·댓글·라벨·마일스톤·릴리스 JSON)
+#   보존: 주간 최근 5개, 월간 최근 12개 (.github/scripts/backup.js)
+#   노션은 진행 리포트와 같은 NOTION_TOKEN / NOTION_DATABASE_ID 를 쓴다. 없으면 건너뜀 (docs/NOTION.md)
+#   복원 방법: docs/BACKUP.md
+name: 자동 백업
+
+on:
+  schedule:
+    - cron: "43 18 * * 0"   # 주간: 월요일 03:43 KST (야간 빌드 03:17 이후)
+    - cron: "37 1 1 * *"    # 월간: 매월 1일 10:37 KST
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: 백업 종류
+        type: choice
+        options: [weekly, monthly]
+        default: weekly
+
+concurrency:
+  group: backup-${{ inputs.kind || github.event.schedule }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-22.04
+    env:
+      KIND: ${{ inputs.kind || (github.event.schedule == '37 1 1 * *' && 'monthly' || 'weekly') }}
+    steps:
+      - uses: actions/checkout@v7   # .github/scripts 용
+
+      - name: 저장소 전체 bundle 만들기
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          git clone --quiet --mirror "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" mirror.git
+          # PR 내부 참조(refs/pull/*)와 이전 백업 태그는 빼고 브랜치·태그만 담는다
+          git -C mirror.git for-each-ref --format='delete %(refname)' 'refs/pull/' 'refs/tags/backup-*' \
+            | git -C mirror.git update-ref --stdin
+          git -C mirror.git bundle create ../out/mad.bundle --all
+          git -C mirror.git bundle verify ../out/mad.bundle
+          git clone --quiet out/mad.bundle restore-test   # 실제로 복원되는지 시험
+          git -C restore-test log -1 --format='복원 시험: %h %s'
+          {
+            echo "BRANCHES=$(git -C mirror.git for-each-ref refs/heads | wc -l)"
+            echo "TAGS=$(git -C mirror.git for-each-ref refs/tags | wc -l)"
+          } >> "$GITHUB_ENV"
+
+      - name: GitHub 기록 내려받기
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const backup = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/backup.js`);
+            const counts = await backup.exportData({ github, context, dir: 'github-data' });
+            core.info(JSON.stringify(counts));
+            require('fs').writeFileSync('out/counts.json', JSON.stringify(counts));
+
+      - name: 묶기, 체크섬
+        run: |
+          set -euo pipefail
+          tar czf out/github-data.tar.gz github-data
+          (cd out && sha256sum mad.bundle github-data.tar.gz > SHA256SUMS && cat SHA256SUMS)
+
+      - name: 릴리스 첨부, 오래된 백업 정리, 노션 기록
+        uses: actions/github-script@v8
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ vars.NOTION_DATABASE_ID }}
+        with:
+          script: |
+            const fs = require('fs');
+            const backup = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/backup.js`);
+            const plan = backup.planFor(process.env.KIND);
+            const stats = {
+              ...JSON.parse(fs.readFileSync('out/counts.json', 'utf8')),
+              branches: Number(process.env.BRANCHES), tags: Number(process.env.TAGS),
+            };
+            const files = ['mad.bundle', 'github-data.tar.gz', 'SHA256SUMS'].map(name => ({ name, path: `out/${name}` }));
+            const release = await backup.publish({ github, context, plan, stats, files });
+            core.notice(`백업 릴리스: ${release.url}`);
+            const removed = await backup.prune({ github, context, plan });
+            if (removed.length) core.info(`오래된 백업 삭제: ${removed.join(', ')}`);
+            await core.summary.addRaw(`${plan.title}: ${release.url}\n\n삭제한 이전 백업: ${removed.join(', ') || '없음'}\n`).write();
+
+            const { NOTION_TOKEN: token, NOTION_DATABASE_ID: databaseId } = process.env;
+            if (!token || !databaseId) {
+              core.warning('NOTION_TOKEN / NOTION_DATABASE_ID 가 없어 노션 기록을 건너뜁니다. (docs/NOTION.md)');
+              return;
+            }
+            const url = await backup.toNotion({ plan, stats, release, token, databaseId });
+            core.notice(`노션 기록: ${url}`);
+
+  report:
+    needs: backup
+    if: always()
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/github-script@v8
+        env:
+          RESULT: ${{ needs.backup.result }}
+        with:
+          script: |
+            const label = 'ci:backup-failure';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const { data: open } = await github.rest.issues.listForRepo({ ...context.repo, labels: label, state: 'open' });
+            if (process.env.RESULT === 'success') {
+              for (const issue of open) {
+                await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body: `✅ 자동 백업 복구됨: ${runUrl}` });
+                await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: 'closed', state_reason: 'completed' });
+              }
+              return;
+            }
+            if (process.env.RESULT === 'cancelled') return;
+            const body = `❌ 자동 백업 실패 (${new Date().toISOString().slice(0, 10)})\n\n실행 로그: ${runUrl}\n\n관리자(maintainers)가 확인해 주세요. 원인을 고친 뒤 Actions → 자동 백업 → Run workflow 로 다시 실행합니다.`;
+            if (open.length) {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: open[0].number, body });
+            } else {
+              await github.rest.issues.create({ ...context.repo, title: '🚨 자동 백업 실패', body, labels: [label, 'priority:high'] });
+            }

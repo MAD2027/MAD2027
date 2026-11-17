@@ -2,7 +2,7 @@
 
 config/fusion_inputs.yaml 에 적힌 센서 팀 출력을 모두 구독하고, 필수 입력이 모두 들어오면
 rate_hz 주기로 fuse() 를 호출한다. 입력 상태는 /system/status 하트비트로 보고한다.
-실제 융합 로직은 fuse() 에 작성한다 (팀 리더 공동 담당).
+실제 융합 로직은 fuse() 에 작성한다 (4팀 공동 담당).
 """
 
 import os

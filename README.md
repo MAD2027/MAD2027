@@ -1,7 +1,7 @@
 # MAD 자율주행
 
 ROS2 Humble (Ubuntu 22.04) + Python/C++ + Arduino 기반 자율주행 프로젝트입니다.
-카메라 · GPS · 라이다 · 제어 4개 팀(팀당 1~2명, 전체 8~9명)이 **하나의 저장소**에서 함께 개발합니다.
+카메라 · GPS · 라이다 · 제어 4개 팀(팀당 1~2명)이 **하나의 저장소**에서 함께 개발합니다. 팀장이나 상하 관계 없이 팀 체계만 둡니다 ([팀 체계](docs/TEAM_GUIDE.md#팀-체계)).
 
 ## 이 저장소의 팀 개발 시스템
 
@@ -25,9 +25,10 @@ ROS2 Humble (Ubuntu 22.04) + Python/C++ + Arduino 기반 자율주행 프로젝�
 | **모든 팀원** | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) - 이슈 → 브랜치 → PR 흐름 |
 | **본체 노트북 담당** | [docs/TARGET_ENV.md](docs/TARGET_ENV.md) - 기준 환경, 실기 테스트 |
 | **노션 기록** | [docs/NOTION.md](docs/NOTION.md) |
+| **자동 백업·복원** | [docs/BACKUP.md](docs/BACKUP.md) - 주간·월간 백업(Releases + 노션), 복원 방법 |
 | **AI 도구 사용자** | [docs/AI_TOOLS.md](docs/AI_TOOLS.md) - Claude Code · Codex · Grok 공용 규칙(`AGENTS.md`), 컨테이너 안 실행 |
-| **팀 리더** | [docs/TEAM_GUIDE.md](docs/TEAM_GUIDE.md) - 인터페이스 변경, 팀 구성 변경, 릴리스 |
-| **팀 리더 (융합 공동 담당)** | [docs/INTEGRATION.md](docs/INTEGRATION.md) - 센서 팀 출력 융합과 최종 통합 절차 |
+| **모든 팀** | [docs/TEAM_GUIDE.md](docs/TEAM_GUIDE.md) - 팀 체계, 인터페이스 변경, 팀 구성 변경, 릴리스 |
+| **융합·통합 작업자** | [docs/INTEGRATION.md](docs/INTEGRATION.md) - 센서 팀 출력 융합과 최종 통합 절차 |
 
 ### 하루 작업 흐름 요약
 
@@ -44,7 +45,7 @@ git push -u origin HEAD                         # 6. PR 생성 (본문에 Closes
 
 ```
 src/camera|gps|lidar|control/   팀별 ROS2 패키지
-src/fusion/                     센서 융합·판단 (mad_fusion, 팀 리더 공동)
+src/fusion/                     센서 융합·판단 (mad_fusion, 4팀 공동)
 src/interfaces/                 팀 간 공용 메시지 (mad_interfaces)
 src/bringup/                    통합 런치 + 노드 상태 감시 (mad_bringup)
 firmware/arduino/               아두이노 스케치

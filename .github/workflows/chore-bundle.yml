@@ -1,0 +1,48 @@
+# 매월 "🧹 자잘한 수정 YYYY-MM" 묶음 이슈를 연다 (이슈 #70).
+# 작은 변경(문서 오타·문구, 링크, 주석, 동작이 바뀌지 않는 설정)은 새 이슈 대신 이 번호를 쓰고 PR 에는 `Refs #N`.
+# 이전 달 묶음 이슈는 닫는다. 제목 접두사는 pr-automation.yml 의 BUNDLE 과 같아야 한다.
+name: 월 묶음 이슈
+
+on:
+  schedule:
+    - cron: "17 0 1 * *"   # 매월 1일 09:17 KST
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const BUNDLE = '🧹 자잘한 수정 ';
+            const kst = new Date(Date.now() + 9 * 3600 * 1000);
+            const month = kst.toISOString().slice(0, 7);   // YYYY-MM (KST)
+            const title = BUNDLE + month;
+
+            const open = await github.paginate(github.rest.issues.listForRepo, { ...context.repo, state: 'open', labels: 'type:chore' });
+            const bundles = open.filter(i => !i.pull_request && i.title.startsWith(BUNDLE));
+            for (const old of bundles.filter(i => i.title !== title)) {
+              await github.rest.issues.update({ ...context.repo, issue_number: old.number, state: 'closed', state_reason: 'completed' });
+              core.notice(`닫음: #${old.number} ${old.title}`);
+            }
+            const current = bundles.find(i => i.title === title);
+            if (current) {
+              core.notice(`이미 있음: #${current.number} ${title}`);
+              return;
+            }
+            const body = [
+              '이번 달 **작은 변경**을 묶는 이슈입니다 (docs/CONTRIBUTING.md "작은 변경"). 새 이슈를 만들지 않고 이 번호를 씁니다.',
+              '',
+              '- 대상: 문서 오타·문구, 깨진 링크, 주석, 동작이 바뀌지 않는 설정 정리',
+              '- 대상 아님: 코드 동작 변경, `src/interfaces/`, 팀 규칙 변경 → 따로 이슈',
+              '- 브랜치 `docs/<이 번호>-<설명>` 또는 `chore/<이 번호>-<설명>`, 커밋 `docs: ... (#이 번호)`',
+              '- PR 본문에는 `Closes` 가 아니라 **`Refs #이 번호`** (병합해도 이 이슈가 닫히지 않게)',
+              '',
+              '다음 달 1일에 워크플로 `월 묶음 이슈` 가 이 이슈를 닫고 새 달 이슈를 엽니다.',
+            ].join('\n');
+            const { data: issue } = await github.rest.issues.create({ ...context.repo, title, body, labels: ['type:chore'] });
+            core.notice(`새 묶음 이슈: ${issue.html_url}`);

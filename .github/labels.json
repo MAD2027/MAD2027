@@ -22,7 +22,7 @@
   {
     "name": "team:fusion",
     "color": "fbca04",
-    "description": "융합 팀 - 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당"
+    "description": "융합 팀 - 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 4팀 공동"
   },
   {
     "name": "type:feature",
@@ -98,6 +98,11 @@
     "name": "ci:nightly-failure",
     "color": "b60205",
     "description": "야간 통합 빌드 실패"
+  },
+  {
+    "name": "ci:backup-failure",
+    "color": "b60205",
+    "description": "자동 백업 실패"
   },
   {
     "name": "report:weekly",

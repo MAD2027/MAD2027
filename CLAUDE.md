@@ -3,136 +3,23 @@
 
 <!-- CLAUDE NOTES: 이 줄 아래는 scripts/teams.py sync 가 지우지 않는다 -->
 
-# 공용 개발 시스템 정비 - 할 일 목록 (Claude 인계용)
+# 공용 개발 시스템 정비 (Claude 인계용)
 
-> 공동 개발 시스템 정비가 끝날 때까지 Claude 로 작업하므로 여기에 둡니다. 다음 세션은 **작업 전에 이 목록을 읽고, 항목을 끝내면 같은 PR 에서 이 구역을 갱신**합니다. 정비가 끝나면 이 구역을 지웁니다.
-> 이 구역은 `scripts/teams.py sync` 가 지우지 않습니다 (위 표시줄 아래).
-> 마지막 갱신: 2026-11-16 (이슈 #53, #52 병합·H2 완료). 진행 상황의 기준은 GitHub 이슈·PR 이고, 이 파일은 요약입니다.
+> **할 일 목록은 GitHub 고정 이슈 #71 "📌 공용 개발 시스템 정비 트래커" 에 있습니다** (이슈 #70 으로 이 파일에서 옮김, D7).
+> 작업 전에 #71 본문을 읽고, 항목을 끝내거나 병합 후 확인한 사실이 생기면 **#71 본문을 고칩니다** (GitHub 도구로 이슈 편집). 기록만 바꾸려고 PR 을 만들지 않습니다.
+> 이 구역에는 오래 쓸 참고 사항만 둡니다 (`scripts/teams.py sync` 가 지우지 않음).
 
 ## 진행 규칙
-- 이 목록의 항목은 **사용자(전체 팀장)에게 확인받은 뒤** 진행합니다. 결정(D) 이 필요한 항목은 결정 전에 시작하지 않습니다.
-- 항목마다 이슈 → `shared/<이슈>-<설명>` 브랜치 → PR (CONTRIBUTING.md, AGENTS.md "작업 절차").
-- 끝난 항목은 아래 "완료" 로 옮기고 PR 번호를 적습니다.
-
-## 현재 상태 (2026-11-16)
-- **조직(D3 결정: 8~9명)**: 전체 팀장 1 + 팀장 4(그중 1명 자율주행팀 팀장 겸임) + 팀원 3~4. **팀당 팀장 1 + 팀원 0~1** → 팀원 없이 팀장 혼자인 팀이 생길 수 있음. README·TEAM_GUIDE·ORG_SETUP 인원 숫자는 C1(#47)에서 반영.
-- **GitHub 팀 구성(실제)**: `leads`·`maintainers` = Anjabom, S1Ron1124 / `team-camera`·`team-gps`·`team-lidar`·`team-control` = Anjabom 만. 다른 팀장·팀원은 아직 미배치 (H1).
-- **승인 체계 (D4 결정 A, 이슈 #51)**: PR 승인은 **필수 아님**. 병합 조건 = PR + `CI 통과` + 대화 Resolve, Squash. 작성자가 병합 가능
-  - `.github/CODEOWNERS` 는 유지하되 **리뷰 자동 요청용**만 (팀 폴더 = `team-*`·`leads`·`maintainers`, `src/fusion/`·`src/interfaces/` = `leads`, 그 밖 = `maintainers`)
-  - 리뷰 권장: 같은 팀끼리(팀원 PR=팀장, 팀장 PR=팀원). 다른 팀 폴더를 바꾼 PR 은 그 팀 확인 후 병합
-  - `src/interfaces/` 는 승인 대신 **인터페이스 변경 요청 이슈에서 전원 동의** 확인 후 병합 (확인 책임 = 병합하는 사람)
-  - GitHub Ruleset `main 보호` 도 같은 설정으로 변경 완료 (H2, 2026-11-16). 이슈 #53 PR 이 승인 없이 병합되면 동작 확인 끝
-- **열린 PR**: 이슈 #53 PR(이 목록 갱신). #52·#48·#46 병합됨. 11-12 기준으로 열려 있던 #43·#44·#40·#27·Dependabot #2~#5 도 모두 병합됨
-  - #40(`setup-host.sh`)은 H4 실제 실행 검증 **전에** 병합됨 → H4 는 여전히 필요, 문제가 나오면 후속 PR 로 수정
-- 센서 팀 폴더(`src/camera|gps|lidar|control/`)는 아직 문서만 있고 패키지 없음. `fusion_inputs.yaml`·`static_tf.yaml` 은 빈 목록 (팀 개발 시작 후 채움, 이 목록 범위 밖)
-- `config/target_env.yml`(본체 노트북 기준 사양)이 비어 있음 (H3)
-
-## A. 결정 필요 (사용자)
-| # | 결정 | 선택지 | 막힌 작업 |
-|---|---|---|---|
-| D1 | ~~팀장이 쓴 코드의 승인 방식~~ **결정: B** (2026-11-12) | 팀 폴더는 같은 팀 사람끼리 서로 승인(팀원 PR=팀장, 팀장 PR=팀원), 다른 팀장(`leads`)·전체 팀장(`maintainers`)은 대리. 팀원이 없는 팀의 팀장 PR 은 대리 승인 | C1 |
-| D2 | 팀장 4명의 GitHub 아이디, 자율주행팀 팀장이 누구인지 | - | C2, H1 |
-| D3 | ~~조직 인원~~ **결정: 8~9명** (2026-11-12) | 팀원 수가 정해지면 TEAM_GUIDE 역할 표에 반영 | C1, C3 |
-| D4 | ~~PR 필수 승인 유지 여부~~ **결정: A** (2026-11-16) | 필수 승인만 제거, PR·`CI 통과` 필수와 CODEOWNERS(리뷰 요청용) 유지. 인터페이스는 이슈 전원 동의 | 이슈 #51 |
-
-## B. 사람(관리자)이 할 일
-| # | 할 일 | 비고 |
-|---|---|---|
-| H1 | 팀장·팀원 Organization 초대, GitHub 팀 배치 (팀장 → `leads`·`maintainers`·자기 `team-*`, 팀원 → 자기 `team-*`). 각 `team-*` 의 저장소 권한이 **Write** 인지 확인 (push·리뷰 요청에 필요) | Org 관리자만 가능. AI 는 팀 구성원을 바꿀 수 없음 |
-| ~~H2~~ | ~~Ruleset `main 보호` 승인 0, Code Owners·Dismiss stale 끄기~~ **완료** (2026-11-16). 승인 없이 병합되는지는 이슈 #53 PR 로 확인 | ORG_SETUP 5장 |
-| H3 | 본체 노트북에서 `python3 scripts/env_check.py --capture` → PR | `.wslconfig`·설치 스크립트의 사양 기준 |
-| H4 | `scripts/installer/setup-host.sh`(#40, 이미 병합) 실제 실행 검증: WSL(이미 수동 설치한 PC 에서 "건너뜀" 동작), 가능하면 새 Ubuntu 22.04 | 결과(멈춘 화면)를 AI 에 전달 → 수정 |
-| H5 | PR 리뷰·병합. 남은 것: 이슈 #53 PR (승인 없이 병합해 H2 확인). 병합된 #27 은 컨테이너에서 `ros2 launch mad_bringup system.launch.py use_sim_time:=true` 확인 권장 | 승인은 필수 아님 (#52). `CI 통과` 후 작성자가 병합 가능 |
-| H6 | 병합된 #6(actions/labeler 5→7) 이 다음 팀 PR 에서 `team:xxx` 라벨을 붙이는지 확인 | 안 붙으면 #6 되돌리기, `teams.py gen_labeler` 확인 |
-| H7 | 팀원별 ROS_DOMAIN_ID 배정·공유 | 팀당 10개 범위 (TEAM_GUIDE) |
-| H8 | (C7 PR 후, 본체) GPU 측정 → `report.md` 를 이슈 #57 에 댓글. H3(`--capture`)도 같이. **명령은 아래 "바로 쓰는 절차: 본체 GPU 측정"** | 충전기 연결, 다른 프로그램 종료. H4 와 함께 하면 한 번에 끝남 |
-
-## C. AI(Claude 등) 가 할 일
-| # | 할 일 | 산출물 | 선행 |
-|---|---|---|---|
-| C2 | (선택) 4팀과 융합(`fusion`)의 `lead:` 에 팀장 아이디 → `python3 scripts/teams.py sync` → CODEOWNERS 갱신. 승인 필수가 아니라 팀장 개인에게 리뷰 요청이 가게 하는 용도 | 작은 PR | D2, H1 |
-| C3 | 교육 자료 웹 페이지 갱신: "MAD 개발 교본"(https://claude.ai/artifact/UyaDFHe2VnQzd9SEUjRjZi), "MAD 팀 구조 점검"(https://claude.ai/artifact/U3URe3BEjjpQeaWvmCaGky) 을 9명 기준·**승인 필수 없음(#51)** 체계로, 병합된 PR 의 "리뷰 중" 표시 정리 | 페이지 갱신 (같은 주소, 소유자 계정에서) | C1 병합 |
-| C5 | 윈도우 설치 파일: `scripts/installer/windows/MAD-설치.cmd` + `setup-windows.ps1`(가상화 검사, WSL·Ubuntu-22.04, winget 으로 VS Code·Git·확장, `.wslconfig`, 재부팅 후 이어하기, WSL 에서 함께 든 `setup-host.sh` 실행) + **서명 없는** `MAD-Setup.exe`(Inno Setup, 릴리스 워크플로가 windows 러너에서 만들어 Releases 첨부). 문서에 SmartScreen "추가 정보 → 실행" 안내 | PR 1개 | H4 |
-| C7 | **도커 GPU 사용 (이슈 #57)**: 본체도 도커 유지 + NVIDIA Container Toolkit(`setup-host.sh`), `dev.sh` GPU 자동 연결(`--gpu`/`--no-gpu`), devcontainer `hostRequirements.gpu: optional`, `env_check` 드라이버·GPU 접근 기록, 측정 스크립트 `gpu_bench.sh`(호스트 vs 컨테이너, 같은 torch 파일). 후속: 카메라 팀이 `requirements.txt` 에 ultralytics/torch 버전 고정 (Python 3.10 → torch ≤2.14, 이미지 크기·OpenCV 충돌 검토) | PR 진행 중 → H8 측정 결과로 판단 | - |
-| C6 | (선택) Copilot·Gemini 용 연결 파일을 `teams.py sync` 가 생성(`AGENTS.md` 를 따르라는 짧은 파일), AI 규칙 숙지 점검 시나리오 문서 | PR 1개 | 다른 AI 도구 사용자가 생기면 |
-
-## 권장 순서
-1. ~~D1, D3 결정~~ (완료). D2(팀장 아이디)는 대기
-2. ~~#46 병합 → C1 → #52 병합 → H2~~ (완료), H1
-3. H3, H7
-4. C3 (C2 는 선택)
-5. H4 → C5. C7(GPU) PR 병합 → H8 측정 (H4 와 같이)
-6. H6 (다음 팀 PR 에서)
-7. C6 (필요할 때)
-
-## 바로 쓰는 절차: 본체 GPU 측정 (H8, 이슈 #57)
-> 사용자가 "GPU 측정 방법", "본체 측정", "H8" 등을 물으면 **이 구역을 그대로 보여 준다** (다시 조사하지 않는다).
-> 명령은 각각 복사해 실행할 수 있게 따로 보여 준다. 결과(`report.md`)를 받으면 이슈 #57 에 정리하고 이 목록을 갱신한다.
-> 전제: #58(C7) 이 병합되어 본체 저장소가 최신 main 이어야 한다 (`git switch main && git pull`). 병합 전이면 `git fetch origin claude/hopeful-brahmagupta-9t8dtb && git switch --detach FETCH_HEAD` 로 PR 브랜치에서 측정 가능.
-
-어디서: **본체 우분투 터미널, 저장소 폴더**(`cd ~/mad2027`). 컨테이너 안이 아님 (`./scripts/dev.sh` 로 들어가지 않는다).
-
-1. 드라이버 확인 - GPU 이름과 드라이버 버전이 나와야 함. 측정용 torch 2.9.1(CUDA 12.8) 은 **드라이버 570 이상** 필요
-   ```bash
-   nvidia-smi
-   ```
-   안 되거나 570 미만이면 설치 후 재부팅 (Secure Boot 화면이 나오면 MOK 등록), 그 뒤 1번부터 다시
-   ```bash
-   sudo ubuntu-drivers install && sudo reboot
-   ```
-2. NVIDIA Container Toolkit 설치·docker 연결 (처음 한 번, 이미 된 단계는 건너뜀)
-   ```bash
-   ./scripts/installer/setup-host.sh --team vehicle --no-vscode
-   ```
-3. 컨테이너에서 GPU 보이는지 확인 - GPU 이름이 나오면 성공
-   ```bash
-   ./scripts/dev.sh --gpu -- nvidia-smi
-   ```
-4. 측정 (15~30분, 처음에는 측정용 패키지 수 GB 다운로드). **충전기 연결, 브라우저 등 다른 프로그램 종료** 후
-   ```bash
-   ./scripts/gpu_bench.sh
-   ```
-   카메라 팀 실제 모델로: `./scripts/gpu_bench.sh --model <가중치.pt>` / 횟수 늘리기: `--runs 500`
-5. 결과 확인 - 마지막에 출력된 경로의 표를 이슈 #57 댓글로 붙인다
-   ```bash
-   cat "$(ls -d .cache/gpu-bench/results/*/ | tail -1)report.md"
-   ```
-6. (함께) 기준 환경 기록 H3 - GPU 가 연결된 상태로 기록 → `config/target_env.yml` 을 PR
-   ```bash
-   ./scripts/dev.sh --gpu -- python3 scripts/env_check.py --capture
-   ```
-
-판정: 컨테이너가 5% 넘게 느린 항목이 없으면 "손해 없음" → 본체도 도커 유지 확정. 넘으면 "측정 직후 상태"(전원·온도·클럭) 확인 후 다시 측정, 그래도 같으면 이슈 #57 에서 "본체만 도커 없이" 재검토.
-다 쓰면 정리: `rm -rf .cache/gpu-bench`
-
-| 막힘 | 해결 |
-|---|---|
-| 3번에서 `could not select device driver ... [[gpu]]` | `sudo nvidia-ctk runtime configure --runtime=docker && sudo systemctl restart docker` 후 3번 |
-| 3번에서 "떠 있는 컨테이너는 GPU 없이 시작됐습니다" | 열려 있는 `./scripts/dev.sh` 터미널을 모두 `exit` 후 3번 |
-| 4번에서 "호스트 Python 이 3.10 이 아님" | 본체 OS 가 22.04 인지 확인 (`lsb_release -a`) |
-| 4번에서 "PyTorch 가 GPU 를 찾지 못했습니다" | 드라이버 570 미만일 가능성 → 1번 |
+- #71 의 항목은 **사용자(저장소 관리자)에게 확인받은 뒤** 진행합니다. 결정(D) 이 필요한 항목은 결정 전에 시작하지 않습니다.
+- 코드·문서 변경은 이슈 → 브랜치 → Draft PR (CONTRIBUTING.md, AGENTS.md "작업 절차"). 작은 변경은 그 달의 묶음 이슈 `🧹 자잘한 수정 YYYY-MM` 을 `Refs` 로 쓰고, 열린 PR 이 있으면 거기에 묶습니다.
+- AI 는 PR 을 병합하지 않고 auto-merge 도 켜지 않습니다.
 
 ## 참고 (작업하며 알게 된 것)
 - `.gitignore` 의 `install/` 이 colcon 출력뿐 아니라 모든 `install/` 폴더를 무시함 → 설치 스크립트는 `scripts/installer/` 에 둠
 - `.pre-commit-config.yaml` 의 `name:` 값에 `: ` 가 들어가면 따옴표로 감싸야 함 (안 그러면 `pre-commit install` 이 조용히 일부 훅만 설치)
 - 루트·팀 폴더의 `CLAUDE.md` 는 `teams.py sync` 가 만드는 파일. 루트 `CLAUDE.md` 의 `CLAUDE NOTES` 표시줄 아래(이 구역)만 sync 가 보존한다. 팀 규칙은 `AGENTS.md` 에 쓴다 (다른 AI 도구도 읽도록)
 - GitHub 에서 Draft 를 해제하면서 팀 리뷰어를 같이 요청하면 "Validation Failed" 가 날 때가 있음 → 리뷰어만 다시 요청하면 됨
+- 노션 기록은 진행 리포트와 백업이 `.github/scripts/report.js` 의 `notion`·`text`·`block` 을 함께 씀. 노션 DB 열 이름을 바꾸면 `backup.js` 도 고쳐야 함
 - 클라우드 AI 세션은 Docker/ROS 가 없어 `colcon build`·`check.sh` 를 못 함 → PR "테스트 방법" 에 실행하지 못했다고 적고, CI 결과와 사람의 컨테이너 확인으로 보완
-
-## 완료
-| 항목 | PR |
-|---|---|
-| fusion.launch.py `use_sim_time` 인자, BEGINNER.md, GitHub SSH 로그인, dev.sh git 연동 | #29 |
-| PR·승인 흐름 문서 (Merging is blocked, 권한 오류, https 전환, 한눈에 보기) | #33 |
-| 팀 폴더 승인 = 팀장(`leads`) + 전체 팀장(`maintainers`) 예비, `teams.yml` `lead`/`code_owners` | #36 |
-| 조직과 역할 표, ROS_DOMAIN_ID 50~59, 인터페이스 변경 전원 동의 | #38 |
-| actions/labeler 5→7 | #6 (H6 확인 필요) |
-| 런치 use_sim_time·센서 static TF·새 패키지 런치 템플릿 | #27 |
-| 개발 환경 자동 설치 스크립트 `setup-host.sh` | #40 (H4 검증 필요) |
-| git 훅(커밋 메시지·브랜치·main push 검사), `finish_task.sh` | #43 |
-| AGENTS.md 작업 절차 체크리스트, AI 작업 요청 양식 | #44 |
-| Dependabot: checkout 5→7, cache 4→6, docker/login-action 3→4, setup-python 6→7 | #2 #3 #4 #5 |
-| ~~C4: #27 용 이슈 연결~~ → #27 이 병합되어 불필요 | - |
-| 할 일 목록을 루트 CLAUDE.md 메모 구역에 기록 (이슈 #45) | #46 |
-| C1: 같은 팀끼리 서로 승인(D1=B) - `code_owners` 에 `team`, 4팀 `[team, leads, maintainers]`, CONTRIBUTING·TEAM_GUIDE·ORG_SETUP·README 8~9명 기준 (이슈 #47) | #48 |
-| 필수 승인 제거(D4=A): CI 통과만으로 병합, CODEOWNERS 는 리뷰 요청용, 인터페이스는 이슈 전원 동의 (이슈 #51). Ruleset 변경(H2) 완료 | #52 |
+- 묶음 이슈 제목 접두사 `🧹 자잘한 수정 ` 은 `chore-bundle.yml` 과 `pr-automation.yml` 의 `BUNDLE` 이 같아야 함 (봇이 `Refs` 를 이슈 연결로 인정하는 기준)
+- 사용자가 "GPU 측정 방법", "본체 측정", "H8" 을 물으면 #71 의 "바로 쓰는 절차: 본체 GPU 측정" 구역을 **그대로** 보여 준다 (다시 조사하지 않음, 명령은 하나씩 복사할 수 있게). 근거·측정 항목 설명은 `docs/TARGET_ENV.md` "GPU 성능 측정"

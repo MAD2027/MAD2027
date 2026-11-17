@@ -47,19 +47,38 @@ jobs:
             // 이슈 연결: HTML 주석 안의 예시는 GitHub 도 연결하지 않으므로 제외. "prefix #12" 같은 오탐 방지 (\b)
             const body = pr.body || '';
             const visible = body.replace(/<!--[\s\S]*?-->/g, '');
-            const linked = [...visible.matchAll(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+#(\d+)\b/gi)].map(m => Number(m[1]));
-            if (!linked.length) {
-              problems.push('PR 본문에 `Closes #이슈번호` 가 없습니다. 이슈와 연결해야 보드에서 진행 상황이 추적됩니다.');
-            }
-            // 연결된 이슈 → status:in-progress (리포트 "진행 중" 집계). 없는 번호/PR 번호/닫힌 이슈는 무시
-            for (const n of new Set(linked)) {
+            const numbers = re => [...new Set([...visible.matchAll(re)].map(m => Number(m[1])))];
+            const linked = numbers(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+#(\d+)\b/gi);
+            const refs = numbers(/\brefs?:?\s+#(\d+)\b/gi);
+            // 작은 변경은 그 달의 묶음 이슈를 Refs 로 연결한다 (chore-bundle.yml 과 같은 제목 접두사, 이슈 #70)
+            const BUNDLE = '🧹 자잘한 수정 ';
+            const getIssue = async n => {
               try {
-                const { data: issue } = await github.rest.issues.get({ ...context.repo, issue_number: n });
-                if (!issue.pull_request && issue.state === 'open' && !issue.labels.some(l => l.name === 'status:in-progress')) {
-                  await github.rest.issues.addLabels({ ...context.repo, issue_number: n, labels: ['status:in-progress'] });
-                }
+                const { data } = await github.rest.issues.get({ ...context.repo, issue_number: n });
+                return data.pull_request ? null : data;
               } catch (e) {
                 if (e.status !== 404) throw e;
+                return null;
+              }
+            };
+            let bundleRef = false;
+            for (const n of refs) {
+              const issue = await getIssue(n);
+              if (issue && issue.title.startsWith(BUNDLE)) bundleRef = true;
+            }
+            if (!linked.length && !bundleRef) {
+              problems.push('PR 본문에 `Closes #이슈번호` 가 없습니다. 이슈와 연결해야 보드에서 진행 상황이 추적됩니다. (작은 변경은 그 달의 묶음 이슈 `🧹 자잘한 수정` 을 `Refs #번호` 로)');
+            }
+            // 연결된 이슈 → status:in-progress (리포트 "진행 중" 집계). 없는 번호/PR 번호/닫힌 이슈는 무시
+            for (const n of linked) {
+              const issue = await getIssue(n);
+              if (!issue) continue;
+              if (issue.title.startsWith(BUNDLE)) {
+                problems.push(`#${n} 은 묶음 이슈입니다. \`Closes #${n}\` 이면 병합할 때 묶음 이슈가 닫히므로 \`Refs #${n}\` 로 바꿔 주세요.`);
+                continue;
+              }
+              if (issue.state === 'open' && !issue.labels.some(l => l.name === 'status:in-progress')) {
+                await github.rest.issues.addLabels({ ...context.repo, issue_number: n, labels: ['status:in-progress'] });
               }
             }
             // AI 도구 사용 감지: PR 템플릿 체크, AI 기본 브랜치 이름, 커밋의 Co-Authored-By 트레일러
@@ -110,7 +129,7 @@ jobs:
               await github.rest.issues.createComment({
                 ...context.repo, issue_number: pr.number,
                 body: `${sharedMarker}\n### 🔌 공용 영역 변경 알림\n변경 경로: ${touched.map(p => '`' + p + '`').join(', ')}\n\n` +
-                      `${cfg.teams.map(t => t.handle).join(' ')}\n각 팀은 자기 코드에 영향이 있는지 확인 후 리뷰에 의견을 남겨 주세요.`,
+                      `${cfg.teams.filter(t => t.handle).map(t => t.handle).join(' ')}\n각 팀은 자기 코드에 영향이 있는지 확인 후 리뷰에 의견을 남겨 주세요.`,
               });
             }
 

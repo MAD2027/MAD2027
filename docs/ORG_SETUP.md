@@ -10,7 +10,7 @@
 | Organization | ✅ `MAD2027` 생성됨 | - |
 | 저장소 | ✅ `MAD2027/MAD2027` (public) 로 이전됨 | 옛 주소로 받은 팀원은 `git remote set-url origin https://github.com/MAD2027/MAD2027.git` |
 | `config/teams.yml` 의 `org` | ✅ `MAD2027` 로 설정 (PR #1 에 포함) | - |
-| 팀 (`maintainers`, `leads`, `team-*`) | 없음 | 팀원 초대와 팀 생성 (3단계) |
+| 팀 (`maintainers`, `team-*`) | 없음 | 팀원 초대와 팀 생성 (3단계) |
 | 브랜치 보호 | 없음 | 규칙 설정 (5단계) |
 
 ## 1. Organization 만들기 (무료)
@@ -40,17 +40,17 @@
 **People → Invite member** 로 모든 팀원을 초대합니다 (역할: Member).
 
 **Teams → New team** 으로 아래 팀을 만듭니다. 팀 slug 는 `config/teams.yml` 의 `github_team` 과 같아야 합니다.
+팀장이나 상하 관계는 없으므로 **Parent team 은 지정하지 않습니다** (모든 팀을 최상위로). ([TEAM_GUIDE 팀 체계](TEAM_GUIDE.md#팀-체계))
 
 | 팀 slug | 구성원 | 역할 |
 |---|---|---|
-| `maintainers` | 전체 팀장 + 각 팀장 | 공용 영역(통합 런치, CI, 설정) 리뷰 요청 대상 |
-| `leads` | 각 팀장 4명 | 인터페이스(메시지)·융합 리뷰 요청 대상, 인터페이스 변경 전원 동의 |
-| `team-camera` | 카메라 팀장 + 팀원 | `src/camera/` push 권한, `@멘션` |
-| `team-gps` | GPS 팀장 + 팀원 | `src/gps/` push 권한, `@멘션` |
-| `team-lidar` | 라이다 팀장 + 팀원 | `src/lidar/` push 권한, `@멘션` |
-| `team-control` | 제어 팀장 + 팀원 | `src/control/`, `firmware/` push 권한, `@멘션` |
+| `maintainers` | 저장소 관리자 (Organization 초대·팀 배치·보호 규칙 담당) | 공용 영역(통합 런치, CI, 설정, 문서) 리뷰 요청 대상 |
+| `team-camera` | 카메라 팀 전원 | `src/camera/` push 권한, `@멘션` |
+| `team-gps` | GPS 팀 전원 | `src/gps/` push 권한, `@멘션` |
+| `team-lidar` | 라이다 팀 전원 | `src/lidar/` push 권한, `@멘션` |
+| `team-control` | 제어 팀 전원 | `src/control/`, `firmware/` push 권한, `@멘션` |
 
-PR 승인은 필수가 아닙니다 (이슈 #51). `.github/CODEOWNERS` 는 **리뷰를 자동으로 요청할 사람**만 정합니다. `/src/camera/ @MAD2027/team-camera @MAD2027/leads @MAD2027/maintainers` 처럼 그 팀(`team-*`)과 `leads`·`maintainers` 를 함께 적습니다 (`config/teams.yml` 의 `code_owners: [team, leads, maintainers]`). 팀장 GitHub 아이디를 각 팀 `lead:` 에 적고 `python3 scripts/teams.py sync` 하면 팀장에게도 직접 리뷰 요청이 갑니다. 팀장은 `leads`·`maintainers`·자기 `team-*` 에, 팀원은 자기 `team-*` 에 넣습니다. **모든 팀에 저장소 Write 권한**을 줍니다 (아래). Write 가 없으면 push 도, 리뷰 요청도 되지 않습니다.
+PR 승인은 필수가 아닙니다 (이슈 #51). `.github/CODEOWNERS` 는 **리뷰를 자동으로 요청할 사람**만 정합니다. 팀 폴더는 `/src/camera/ @MAD2027/team-camera` 처럼 그 팀에만, 융합(`src/fusion/`)·인터페이스(`src/interfaces/`)는 4팀 모두에, 그 밖의 공용 파일은 `maintainers` 에 요청이 갑니다 (`config/teams.yml` 의 `code_owners`). 사람은 자기 `team-*` 에 넣고, 관리 업무를 맡는 사람만 `maintainers` 에도 넣습니다. 예전에 만든 `leads` 팀은 더 이상 쓰지 않으므로 지웁니다 (이슈 #62). **모든 팀에 저장소 Write 권한**을 줍니다 (아래). Write 가 없으면 push 도, 리뷰 요청도 되지 않습니다.
 
 각 팀 페이지 → **Repositories → Add repository** → 저장소 선택 → 권한 **Write**
 (`maintainers` 팀은 **Maintain**)
@@ -97,6 +97,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - ✅ Allow squash merging (나머지 merge/rebase 는 해제)
 - ✅ Always suggest updating pull request branches
 - ✅ Automatically delete head branches
+- ✅ **Allow auto-merge** (작성자가 PR 에서 Enable auto-merge 를 누르면 `CI 통과` 후 자동 병합, 이슈 #70)
 
 ## 6. 진행 상황 보드 (GitHub Projects)
 
@@ -141,6 +142,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 
 - 본체 노트북 기준 환경 기록과 실기 테스트 러너 등록: [TARGET_ENV.md](TARGET_ENV.md)
 - 주간·월간 작업 기록을 노션에 연동 (`NOTION_TOKEN`, `NOTION_DATABASE_ID`): [NOTION.md](NOTION.md)
+- 주간·월간 자동 백업(Releases 프리릴리스, 같은 노션 데이터베이스에 기록). 추가 설정 없음, 병합 후 Actions 에서 한 번 수동 실행해 확인: [BACKUP.md](BACKUP.md)
 
 ## 9. 확인 체크리스트
 
@@ -149,7 +151,9 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - [ ] 라벨 동기화 워크플로를 실행했다
 - [ ] main 에 직접 push 하면 거부된다
 - [ ] 테스트 PR 을 올렸을 때 팀 라벨이 붙고, 코드 오너 리뷰가 요청되고, `CI 통과` 체크가 돈다. 승인 없이 `CI 통과` 만으로 병합 버튼이 활성화된다
+- [ ] 테스트 PR 의 바뀐 줄에 리뷰 댓글을 달고 Resolve 하지 않으면 병합 버튼이 막힌다 (`All conversations must be resolved`). 막히지 않으면 5장의 Require conversation resolution before merging 이 꺼진 것 (2026-11 실제로 꺼져 있었음)
 - [ ] 새 이슈가 프로젝트 보드에 자동으로 나타난다
+- [ ] PR 화면에 **Enable auto-merge** 버튼이 보이고, Actions → `월 묶음 이슈` 를 수동 실행하면 이번 달 `🧹 자잘한 수정` 이슈가 하나만 열려 있다
 - [ ] `ghcr.io/mad2027/mad-dev:humble` 이미지가 있고 Public 이다
 - [ ] 본체 노트북에서 `--capture` 한 `config/target_env.yml` 이 main 에 있다
 - [ ] 본체 노트북 러너가 Settings → Actions → Runners 에 `Idle` 로 보인다

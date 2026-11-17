@@ -49,6 +49,7 @@ STATIC_LABELS = [
     ("priority:low", "0e8a16", "우선순위 낮음"),
     ("area:shared", "fbca04", "공용 영역(인터페이스/통합 런치) 변경"),
     ("ci:nightly-failure", "b60205", "야간 통합 빌드 실패"),
+    ("ci:backup-failure", "b60205", "자동 백업 실패"),
     ("report:weekly", "bfdadc", "주간 진행 리포트"),
     ("report:monthly", "bfdadc", "월간 진행 리포트"),
     ("ai:claude", "d4c5f9", "Claude Code 로 작성/수정"),
@@ -58,7 +59,11 @@ STATIC_LABELS = [
 ]
 
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
-GH_USER_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$")
+# code_owners / shared.owners 에 쓸 수 있는 값 (승인은 필수가 아니고 리뷰 자동 요청 대상만 정한다, 이슈 #51·#62)
+#   team       = 그 팀의 github_team (같은 팀 사람끼리 리뷰)
+#   all_teams  = github_team 이 있는 모든 팀 (여러 팀이 함께 쓰는 곳: 융합, 인터페이스)
+#   maintainers = 저장소 관리자 (config 의 maintainers_team)
+OWNER_KEYS = ("team", "all_teams", "maintainers")
 
 
 def load_config() -> dict:
@@ -74,16 +79,20 @@ def load_config() -> dict:
         team.setdefault("color", "ededed")
         team.setdefault("description", team["name"])
         team["paths"] = [p.rstrip("/") + "/" for p in team.get("paths", [])]
-        lead = (team.get("lead") or "").strip().lstrip("@")
-        if lead and not GH_USER_RE.match(lead):
-            sys.exit(f"팀 '{tid}' 의 lead '{lead}' 는 GitHub 아이디 형식이 아닙니다")
-        team["lead"] = lead
-        team["code_owners"] = list(team.get("code_owners") or [])
+        if "lead" in team:
+            sys.exit(f"팀 '{tid}' 의 lead 는 더 이상 쓰지 않습니다 (팀장 개념 제거, 이슈 #62). 지워 주세요")
+        team["github_team"] = (team.get("github_team") or "").strip()
+        team["code_owners"] = list(team.get("code_owners") or (["team"] if team["github_team"] else ["all_teams"]))
         for owner in team["code_owners"]:
-            if owner != "team" and f"{owner}_team" not in cfg:
-                sys.exit(f"팀 '{tid}' 의 code_owners '{owner}' 를 찾을 수 없습니다 (가능: team, leads, maintainers)")
+            if owner not in OWNER_KEYS:
+                sys.exit(f"팀 '{tid}' 의 code_owners '{owner}' 를 쓸 수 없습니다 (가능: {', '.join(OWNER_KEYS)})")
+            if owner == "team" and not team["github_team"]:
+                sys.exit(f"팀 '{tid}' 는 github_team 이 없어 code_owners 에 team 을 쓸 수 없습니다")
     for area in cfg.get("shared", []):
         area["path"] = area["path"].rstrip("/") + "/"
+        for owner in area["owners"]:
+            if owner not in OWNER_KEYS or owner == "team":
+                sys.exit(f"공용 영역 '{area['path']}' 의 owners '{owner}' 는 all_teams 또는 maintainers 만 됩니다")
     return cfg
 
 
@@ -91,18 +100,23 @@ def handle(org: str, team_slug: str) -> str:
     return f"@{org}/{team_slug}"
 
 
-def team_code_owners(cfg: dict, team: dict) -> list[str]:
-    """팀 폴더 리뷰 자동 요청 대상(승인은 필수 아님): 팀장 개인 + code_owners 팀. 둘 다 없으면 팀 전체(github_team).
-
-    code_owners 의 "team" 은 그 팀 자신의 github_team (같은 팀 사람끼리 서로 리뷰).
-    """
+def resolve_owners(cfg: dict, keys: list[str], team: dict | None = None) -> list[str]:
+    """OWNER_KEYS 목록을 @org/slug 목록으로 (리뷰 자동 요청 대상, 승인은 필수 아님)."""
     org = cfg["org"]
-    owners = [f"@{team['lead']}"] if team["lead"] else []
-    for o in team["code_owners"]:
-        slug = team["github_team"] if o == "team" else cfg[f"{o}_team"]
-        owners.append(handle(org, slug))
-    owners = list(dict.fromkeys(owners))  # 같은 팀이 두 번 나오지 않게 (예: fusion 의 github_team 이 leads)
-    return owners or [handle(org, team["github_team"])]
+    owners: list[str] = []
+    for o in keys:
+        if o == "team":
+            owners.append(handle(org, team["github_team"]))
+        elif o == "all_teams":
+            owners += [handle(org, t["github_team"]) for t in cfg["teams"] if t["github_team"]]
+        else:
+            owners.append(handle(org, cfg["maintainers_team"]))
+    return list(dict.fromkeys(owners))
+
+
+def team_code_owners(cfg: dict, team: dict) -> list[str]:
+    """팀 폴더 리뷰 자동 요청 대상: 기본은 그 팀(github_team), 전용 팀이 없으면 모든 팀."""
+    return resolve_owners(cfg, team["code_owners"], team)
 
 
 # ── 생성기 ────────────────────────────────────────────────────
@@ -120,8 +134,7 @@ def gen_codeowners(cfg: dict) -> str:
     lines.append("")
     lines.append("# 공용 영역")
     for area in cfg.get("shared", []):
-        owners = " ".join(handle(org, cfg[f"{o}_team"]) for o in area["owners"])
-        lines.append(f"/{area['path']} {owners}")
+        lines.append(f"/{area['path']} {' '.join(resolve_owners(cfg, area['owners']))}")
     return "\n".join(lines) + "\n"
 
 
@@ -170,7 +183,7 @@ def gen_teams_json(cfg: dict) -> str:
                 "id": t["id"],
                 "name": t["name"],
                 "label": f"team:{t['id']}",
-                "handle": handle(org, t["github_team"]),
+                "handle": handle(org, t["github_team"]) if t["github_team"] else None,
                 "paths": t["paths"],
             }
             for t in cfg["teams"]
@@ -178,7 +191,7 @@ def gen_teams_json(cfg: dict) -> str:
         "shared": [
             {
                 "path": a["path"],
-                "owners": [handle(org, cfg[f"{o}_team"]) for o in a["owners"]],
+                "owners": resolve_owners(cfg, a["owners"]),
                 "notify_all_teams": bool(a.get("notify_all_teams")),
             }
             for a in cfg.get("shared", [])
